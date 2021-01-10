@@ -1,0 +1,18 @@
+from .settings import *  # noqa
+
+SECRET_KEY = 'i=plekfg;'lekrg'pekrg)(*+(jfjkdfj7c-m$'
+
+INSTALLED_APPS = [
+    *INSTALLED_APPS,
+    'django_extensions',
+]
+
+DATABASES = {
+    'default': {
+        'HOST': '127.0.0.1',
+        'NAME': 'check_car_park',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': 'postgres',
+        'PASSWORD': 'very_secret',
+    }
+}
