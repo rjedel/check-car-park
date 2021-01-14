@@ -11,8 +11,9 @@ DATABASES = {
     'default': {
         'HOST': '127.0.0.1',
         'NAME': 'check_car_park',
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'USER': 'postgres',
         'PASSWORD': 'very_secret',
+        'PORT': '5432'
     }
 }
