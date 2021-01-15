@@ -25,7 +25,7 @@ SECRET_KEY = 'elephant'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.48', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition

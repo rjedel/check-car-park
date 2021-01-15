@@ -1,0 +1,20 @@
+{% extends "car_park/base.html" %}
+{% block title %}Dodaj parking{% endblock %}
+{% block content %}
+    <h1>Dodaj parking</h1>
+        <form method="post" action="">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <button type="submit">Dodaj</button>
+        </form>
+{#    <script>#}
+{#    const city = document.getElementById('id_city');#}
+{#    const street = document.getElementById('id_street');#}
+{#    const street_number = document.getElementById('id_street_number');#}
+{#    if (city.innerText && street.innerText && street_number.innerText) {#}
+{#        document.getElementById('id_city').style.color = "red";#}
+{#    }#}
+{##}
+{##}
+{#    </script>#}
+{% endblock content %}

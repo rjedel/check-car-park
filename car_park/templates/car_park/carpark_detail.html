@@ -1,0 +1,37 @@
+<!doctype html>
+{% load leaflet_tags %}
+<html lang="pl">
+<head>
+    {% leaflet_css %}
+    {% leaflet_js %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<div>MyStAmp
+    <h1>{{ object.name }}</h1>
+    {% leaflet_map "main" callback="map_init" %}
+</div>
+
+<script type="text/javascript">
+    function map_init(map, options) {
+        // get point lat and lon
+        const lat = "{{ object.location.y }}".replace(',', '.');
+        const lon = "{{ object.location.x }}".replace(',', '.');
+
+        {#const lat = "{{ object.location.y }}";#}
+        {#const lon = "{{ object.location.x }}";#}
+
+        // zoom to point & add it to map
+        map.setView([lat, lon], 17);
+        L.marker([lat, lon]).addTo(map);
+    }
+</script>
+
+</body>
+</html>
