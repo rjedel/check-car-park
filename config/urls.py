@@ -22,7 +22,7 @@ from car_park.views import AllCarParksListView, CarParkDetailView, AddCarParkVie
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", AllCarParksListView.as_view(), name='all_car_parks_map'),
-    path("car_park_detail/<int:pk>/", CarParkDetailView.as_view()),
+    path("car_park_detail/<int:pk>/", CarParkDetailView.as_view(), name='car_park_detail'),
     path('add_car_park/', AddCarParkView.as_view(), name='add_car_park'),
     path('about/', AboutView.as_view(), name='about'),
     path('contact/', ContactView.as_view(), name='contact'),

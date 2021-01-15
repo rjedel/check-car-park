@@ -1,37 +1,49 @@
-<!doctype html>
-{% load leaflet_tags %}
-<html lang="pl">
-<head>
+{% extends "car_park/base.html" %}
+{% block title %}{{ object.name }}{% endblock %}
+{% block head %}
+    {% load leaflet_tags %}
+    {{ block.super }}
     {% leaflet_css %}
     {% leaflet_js %}
+{% endblock head %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-
+{% block content %}
 <div>
     <h1>{{ object.name }}</h1>
-    {% leaflet_map "main" callback="map_init" %}
+    {% leaflet_map "car_park_detail" callback="map_init" %}
 </div>
 
 <script type="text/javascript">
     function map_init(map, options) {
-        // get point lat and lon
-        const lat = "{{ object.location.y }}".replace(',', '.');
-        const lon = "{{ object.location.x }}".replace(',', '.');
 
-        {#const lat = "{{ object.location.y }}";#}
-        {#const lon = "{{ object.location.x }}";#}
+        // get point lat and lon
+       const lat = "{{ object.location.y }}".replace(',', '.');
+       const lon = "{{ object.location.x }}".replace(',', '.');
+
+  fetch(`https://nominatim.openstreetmap.org/search?q=${lat},${lon}&limit=1&addressdetails=1&format=jsonv2`)
+      .then(function(resp) {
+            if (resp.ok) {
+              return resp.json();
+            } else {
+              throw new Error("Network error");
+            }
+            })
+      .then(function(data) {
+            const house_number = data[0]['address']['house_number'];
+            const road = data[0]['address']['road'];
+            const city = data[0]['address']['city'];
+            const town = data[0]['address']['town'];
+            const village = data[0]['address']['village'];
 
         // zoom to point & add it to map
         map.setView([lat, lon], 17);
-        L.marker([lat, lon]).addTo(map);
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup('{{ object.name }}<br><br> adres:<br>' + road + ' ' + house_number + '<br>' + (city || town || village))
+            .openPopup();
+        })
+      .catch(function(err) {
+    console.log(err);
+  });
     }
 </script>
-
-</body>
-</html>
+{% endblock content %}

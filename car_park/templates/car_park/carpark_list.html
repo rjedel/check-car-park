@@ -9,8 +9,7 @@
 
 {% block content %}
 <div>
-    <h1>{{ object.name }}</h1>
-    {% leaflet_map "all_points" callback="map_init" %}
+    {% leaflet_map "all_car_parks_map" callback="map_init" %}
 </div>
 
 <script type="text/javascript">
@@ -24,9 +23,11 @@
         lon = "{{ object.location.x }}".replace(',', '.');
 
         // zoom to point & add it to map
-        map.setView([lat, lon], 5.5);
-        L.marker([lat, lon]).addTo(map);
+        map.setView([lat, lon], 6);
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup('{{ object.name }}<br><a href="{% url 'car_park_detail' object.pk %}">więcej</a>');
       {% endfor %}
     }
+    document.getElementById('all_car_parks_map').style.height = '500px';
 </script>
 {% endblock content %}
