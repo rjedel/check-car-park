@@ -5,8 +5,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% block head %}{% endblock head %}
     <title>{% block title %}{% endblock title %}</title>
-
 <style>
 body {
   font-family: "Lato", sans-serif;
@@ -63,9 +63,9 @@ body {
 
 <div id="mySidenav" class="sidenav">
   <a href="#" class="closebtn" onclick="closeNav();">&times;</a>
-  <a href="#">Mapa</a>
-  <a href="{% url 'add_car_park' %}">Dodaj parking</a>
-  <a href="{% url 'about' %}">O stronie</a>
+  <a href="{% url 'all_car_parks_map' %}">Strona&nbsp;główna</a>
+  <a href="{% url 'add_car_park' %}">Dodaj&nbsp;parking</a>
+  <a href="{% url 'about' %}">O&nbsp;stronie</a>
   <a href="{% url 'contact' %}">Kontakt</a>
 </div>
 

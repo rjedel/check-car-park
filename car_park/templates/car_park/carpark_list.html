@@ -1,0 +1,32 @@
+{% extends "car_park/base.html" %}
+{% block title %}Wszystkie parkingi{% endblock %}
+{% block head %}
+    {% load leaflet_tags %}
+    {{ block.super }}
+    {% leaflet_css %}
+    {% leaflet_js %}
+{% endblock head %}
+
+{% block content %}
+<div>
+    <h1>{{ object.name }}</h1>
+    {% leaflet_map "all_points" callback="map_init" %}
+</div>
+
+<script type="text/javascript">
+    function map_init(map, options) {
+      let lat;
+      let lon;
+
+      {% for object in object_list %}
+        // get point lat and lon
+        lat = "{{ object.location.y }}".replace(',', '.');
+        lon = "{{ object.location.x }}".replace(',', '.');
+
+        // zoom to point & add it to map
+        map.setView([lat, lon], 5.5);
+        L.marker([lat, lon]).addTo(map);
+      {% endfor %}
+    }
+</script>
+{% endblock content %}
