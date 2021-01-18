@@ -8,42 +8,69 @@
 {% endblock head %}
 
 {% block content %}
-<div>
-    <h1>{{ object.name }}</h1>
-    {% leaflet_map "car_park_detail" callback="map_init" %}
-</div>
+    <div>
+        <h1>{{ object.name }}</h1>
+        {% leaflet_map "car_park_detail" callback="map_init" %}
+    </div>
 
-<script type="text/javascript">
-    function map_init(map, options) {
+    <br>
+    <div>
+        {{ object.description }}
+    </div>
+    {% if object.free_of_charge %}
+        <p>Parking bezpłatny</p>
+    {% endif %}
+    {% if object.price_list %}
+        <br>
+        <table>
+            <tr>
+                <td>Cena za pierwszą godzinę</td>
+                <td>{{ object.price_list.first_hour_fee }}</td>
+            </tr>
+            <tr>
+                <td>Maksymalna opłata dodatkowa</td>
+                <td>{{ object.price_list.maximum_additional_fee }}</td>
+            </tr>
+            <tr>
+                <td>Opis maksymalnej opłaty dodatkowej</td>
+                <td>{{ object.price_list.additional_fee_description }}</td>
+            </tr>
+        </table>
+    {% endif %}
+
+    <script type="text/javascript">
+      function map_init(map, options) {
 
         // get point lat and lon
-       const lat = "{{ object.location.y }}".replace(',', '.');
-       const lon = "{{ object.location.x }}".replace(',', '.');
+        const lat = "{{ object.latitude_y }}";
+        const lon = "{{ object.longitude_x }}";
 
-  fetch(`https://nominatim.openstreetmap.org/search?q=${lat},${lon}&limit=1&addressdetails=1&format=jsonv2`)
-      .then(function(resp) {
-            if (resp.ok) {
-              return resp.json();
-            } else {
-              throw new Error("Network error");
-            }
+        fetch(`https://nominatim.openstreetmap.org/search?q=${lat},${lon}&limit=1&addressdetails=1&format=jsonv2`)
+            .then(function (resp) {
+              if (resp.ok) {
+                return resp.json();
+              } else {
+                throw new Error("Network error");
+              }
             })
-      .then(function(data) {
-            const house_number = data[0]['address']['house_number'];
-            const road = data[0]['address']['road'];
-            const city = data[0]['address']['city'];
-            const town = data[0]['address']['town'];
-            const village = data[0]['address']['village'];
+            .then(function (data) {
+              const houseNumber = data[0]['address']['house_number'];
+              const road = data[0]['address']['road'];
+              const postcode = data[0]['address']['postcode'];
+              const city = data[0]['address']['city'];
+              const town = data[0]['address']['town'];
+              const village = data[0]['address']['village'];
 
-        // zoom to point & add it to map
-        map.setView([lat, lon], 17);
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('{{ object.name }}<br><br> adres:<br>' + road + ' ' + house_number + '<br>' + (city || town || village))
-            .openPopup();
-        })
-      .catch(function(err) {
-    console.log(err);
-  });
-    }
-</script>
+              // zoom to point & add it to map
+              map.setView([lat, lon], 17);
+              L.marker([lat, lon]).addTo(map)
+                  .bindPopup('{{ object.name }}<br><br> adres:<br>' + road + ' ' + houseNumber + '<br>'
+                      + postcode + ' ' + (city || town || village))
+                  .openPopup();
+            })
+            .catch(function (err) {
+              console.log(err);
+            });
+      }
+    </script>
 {% endblock content %}
