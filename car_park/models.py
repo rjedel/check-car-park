@@ -9,7 +9,22 @@ class CarPark(models.Model):
     location = models.PointField()
     created = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
-    price_list = models.OneToOneField('PriceList', on_delete=models.CASCADE, null=True)
+    free_of_charge = models.BooleanField(default=False)
+    price_list = models.ForeignKey('PriceList', on_delete=models.CASCADE, null=True)
+
+    @property
+    def longitude_x(self):
+        return str(self.location.x).replace(',', '.')
+
+    @property
+    def latitude_y(self):
+        return str(self.location.y).replace(',', '.')
+
+
+class PriceList(models.Model):
+    first_hour_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    maximum_additional_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    additional_fee_description = models.TextField(blank=True)
 
 
 class Opinion(models.Model):
@@ -22,44 +37,42 @@ class Opinion(models.Model):
     )
     opinion = models.TextField()
     stars = models.PositiveSmallIntegerField(choices=STARS_CHOICES)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    car_park = models.ForeignKey('CarPark', on_delete=models.CASCADE)
-
-
-class PriceList(models.Model):
-    free_of_charge = models.BooleanField(default=False)
-    first_hour_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
-    maximum_additional_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
-    additional_fee_description = models.TextField(blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_opinions')
+    car_park = models.ForeignKey('CarPark', on_delete=models.CASCADE, related_name='car_park_opinions')
     votes = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('user_id', 'car_park_id',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
-        self.price_list_votes = None
+        self.opinion_votes = None
 
     def up_vote(self, user):
         try:
-            self.price_list_votes.create(user=user, price_list=self, vote_type=True)
+            self.opinion_votes.create(user=user, opinion=self, vote_type=True)
             self.votes += 1
             self.save()
         except IntegrityError:
             return 'already voted for'
-        return 'ok'
+        else:
+            return 'ok'
 
     def down_vote(self, user):
         try:
-            self.price_list_votes.create(user=user, price_list=self, vote_type=False)
+            self.opinion_votes.create(user=user, opinion=self, vote_type=False)
             self.votes -= 1
             self.save()
         except IntegrityError:
             return 'already voted against'
-        return 'ok'
+        else:
+            return 'ok'
 
 
 class UserVotes(models.Model):
     user = models.ForeignKey(User, related_name='user_votes', on_delete=models.CASCADE)
-    price_list = models.ForeignKey(PriceList, related_name='price_list_votes', on_delete=models.CASCADE)
+    opinion = models.ForeignKey(Opinion, related_name='opinion_votes', on_delete=models.CASCADE)
     vote_type = models.BooleanField()
 
     class Meta:
-        unique_together = ('user', 'price_list', 'vote_type')
+        unique_together = ('user', 'opinion', 'vote_type',)
