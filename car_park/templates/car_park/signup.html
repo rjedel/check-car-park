@@ -1,0 +1,10 @@
+{% extends 'car_park/base.html' %}
+{% block title %}Załóż konto{% endblock %}
+{% block content %}
+    <h1>Załóż konto w Sprawdź Parking</h1>
+    <form method="post">
+        {% csrf_token %}
+        <table>{{ form.as_table }}</table>
+        <button type="submit">Załóż konto</button>
+    </form>
+{% endblock %}

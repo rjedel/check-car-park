@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.views import View
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, CreateView
 
-from .forms import AddCarParkForm
+from .forms import CustomUserCreationForm, AddCarParkForm
 from .models import CarPark
 
 
@@ -32,3 +32,9 @@ class AboutView(View):
 class ContactView(View):
     def get(self, request):
         return render(request, 'car_park/contact.html')
+
+
+class SignupView(CreateView):
+    form_class = CustomUserCreationForm
+    success_url = '/'
+    template_name = 'car_park/signup.html'

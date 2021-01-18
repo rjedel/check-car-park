@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from car_park.views import AllCarParksListView, CarParkDetailView, AddCarParkView, \
+from car_park.views import SignupView, AllCarParksListView, CarParkDetailView, AddCarParkView, \
     AboutView, ContactView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('signup/', SignupView.as_view(), name="signup"),
     path("", AllCarParksListView.as_view(), name='all_car_parks_map'),
     path("car_park_detail/<int:pk>/", CarParkDetailView.as_view(), name='car_park_detail'),
     path('add_car_park/', AddCarParkView.as_view(), name='add_car_park'),
