@@ -17,8 +17,8 @@ from django.contrib import admin
 from django.urls import path
 
 
-from car_park.views import SignupView, CustomLoginView, CustomLogoutView, AllCarParksListView, CarParkDetailView, AddCarParkView, \
-    AboutView, ContactView
+from car_park.views import SignupView, CustomLoginView, CustomLogoutView, AllCarParksListView, CarParkDetailView, \
+    AddCarParkView, AboutView, ContactView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
