@@ -23,18 +23,24 @@
     {% if object.price_list %}
         <br>
         <table>
-            <tr>
-                <td>Cena za pierwszą godzinę</td>
-                <td>{{ object.price_list.first_hour_fee }}</td>
-            </tr>
-            <tr>
-                <td>Maksymalna opłata dodatkowa</td>
-                <td>{{ object.price_list.maximum_additional_fee }}</td>
-            </tr>
-            <tr>
-                <td>Opis maksymalnej opłaty dodatkowej</td>
-                <td>{{ object.price_list.additional_fee_description }}</td>
-            </tr>
+            {% if object.price_list.first_hour_fee %}
+                <tr>
+                    <td>Cena za pierwszą godzinę</td>
+                    <td>{{ object.price_list.first_hour_fee }}</td>
+                </tr>
+            {% endif %}
+            {% if object.price_list.maximum_additional_fee %}
+                <tr>
+                    <td>Maksymalna opłata dodatkowa</td>
+                    <td>{{ object.price_list.maximum_additional_fee }}</td>
+                </tr>
+            {% endif %}
+            {% if object.price_list.additional_fee_description %}
+                <tr>
+                    <td>Opis maksymalnej opłaty dodatkowej</td>
+                    <td>{{ object.price_list.additional_fee_description }}</td>
+                </tr>
+            {% endif %}
         </table>
     {% endif %}
 
