@@ -1,0 +1,18 @@
+{% extends 'car_park/base.html' %}
+{% block title %}Zaloguj się{% endblock %}
+{% block content %}
+    <h1>Zaloguj się do Sprawdź Parking</h1>
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <button type="submit">Zaloguj</button>
+        </form>
+    </div>
+    <div>
+        <br>
+        <a href="{% url 'signup' %}">
+            ZAŁÓŻ KONTO >
+        </a>
+    </div>
+{% endblock %}

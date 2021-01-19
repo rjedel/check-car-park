@@ -1,0 +1,14 @@
+{% extends 'car_park/base.html' %}
+{% block title %}Wylogowanie{% endblock %}
+{% block content %}
+    <div>
+        <p>
+            Zostałeś Poprawnie wylogowany.
+        </p>
+    </div>
+    <script>
+      window.setTimeout(function () {
+        window.location.href = '/login/';
+      }, 2000);
+    </script>
+{% endblock %}
