@@ -8,26 +8,26 @@
 {% endblock head %}
 
 {% block content %}
-<div>
-    {% leaflet_map "all_car_parks_map" callback="map_init" %}
-</div>
+    <div>
+        {% leaflet_map "all_car_parks_map" callback="map_init" %}
+    </div>
 
-<script type="text/javascript">
-    function map_init(map, options) {
-      let lat;
-      let lon;
+    <script type="text/javascript">
+      function map_init(map, options) {
+        let lat;
+        let lon;
 
-      {% for object in object_list %}
-        // get point lat and lon
-        lat = "{{ object.location.y }}".replace(',', '.');
-        lon = "{{ object.location.x }}".replace(',', '.');
+        {% for object in object_list %}
+          lat = "{{ object.latitude_y }}";
+          lon = "{{ object.longitude_x }}";
 
-        // zoom to point & add it to map
-        map.setView([lat, lon], 6);
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('{{ object.name }}<br><a href="{% url 'car_park_detail' object.pk %}">więcej</a>');
-      {% endfor %}
-    }
-    document.getElementById('all_car_parks_map').style.height = '500px';
-</script>
+          // zoom to point & add it to map
+          map.setView([lat, lon], 6);
+          L.marker([lat, lon]).addTo(map)
+              .bindPopup('{{ object.name }}<br><a href="{% url 'car_park_detail' object.pk %}">więcej</a>');
+        {% endfor %}
+      }
+
+      document.getElementById('all_car_parks_map').style.height = '500px';
+    </script>
 {% endblock content %}
