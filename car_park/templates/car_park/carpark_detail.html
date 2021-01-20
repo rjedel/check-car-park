@@ -52,6 +52,7 @@
 
     <script type="text/javascript">
       function map_init(map, options) {
+        map.options.closePopupOnClick = false;
 
         // get point lat and lon
         const lat = "{{ object.latitude_y }}";
