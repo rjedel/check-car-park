@@ -10,7 +10,7 @@ class CarPark(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
     free_of_charge = models.BooleanField(default=False)
-    price_list = models.ForeignKey('PriceList', on_delete=models.CASCADE, null=True)
+    tariff = models.ForeignKey('Tariff', on_delete=models.CASCADE, null=True)
 
     @property
     def longitude_x(self):
@@ -21,7 +21,8 @@ class CarPark(models.Model):
         return str(self.location.y).replace(',', '.')
 
 
-class PriceList(models.Model):
+class Tariff(models.Model):
+    tariffs_name = models.CharField(max_length=100, blank=True)
     first_hour_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     maximum_additional_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     additional_fee_description = models.TextField(blank=True)
