@@ -20,25 +20,31 @@
     {% if object.free_of_charge %}
         <p>Parking bezpłatny</p>
     {% endif %}
-    {% if object.price_list %}
+    {% if object.tariff %}
         <br>
         <table>
-            {% if object.price_list.first_hour_fee %}
+            {% if object.tariff.tariffs_name %}
+                <tr>
+                    <td>Nazwa taryfy</td>
+                    <td>{{ object.tariff.tariffs_name }}</td>
+                </tr>
+            {% endif %}
+            {% if object.tariff.first_hour_fee %}
                 <tr>
                     <td>Cena za pierwszą godzinę</td>
-                    <td>{{ object.price_list.first_hour_fee }} zł</td>
+                    <td>{{ object.tariff.first_hour_fee }} zł</td>
                 </tr>
             {% endif %}
-            {% if object.price_list.maximum_additional_fee %}
+            {% if object.tariff.maximum_additional_fee %}
                 <tr>
                     <td>Maksymalna opłata dodatkowa</td>
-                    <td>{{ object.price_list.maximum_additional_fee }} zł</td>
+                    <td>{{ object.tariff.maximum_additional_fee }} zł</td>
                 </tr>
             {% endif %}
-            {% if object.price_list.additional_fee_description %}
+            {% if object.tariff.additional_fee_description %}
                 <tr>
                     <td>Opis maksymalnej opłaty dodatkowej</td>
-                    <td>{{ object.price_list.additional_fee_description }}</td>
+                    <td>{{ object.tariff.additional_fee_description }}</td>
                 </tr>
             {% endif %}
         </table>
@@ -69,7 +75,8 @@
 
               // zoom to point & add it to map
               map.setView([lat, lon], 17);
-              L.marker([lat, lon]).addTo(map)
+              L.marker([lat, lon])
+                  .addTo(map)
                   .bindPopup('{{ object.name }}<br><br> adres:<br>' + road + ' ' + houseNumber + '<br>'
                       + postcode + ' ' + (city || town || village))
                   .openPopup();
