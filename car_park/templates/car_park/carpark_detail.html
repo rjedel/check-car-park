@@ -58,7 +58,7 @@
         const lat = "{{ object.latitude_y }}";
         const lon = "{{ object.longitude_x }}";
 
-        fetch(`https://nominatim.openstreetmap.org/search?q=${lat},${lon}&limit=1&addressdetails=1&format=jsonv2`)
+        fetch(`https://nominatim.openstreetmap.org/search?q=${lat},${lon}&limit=1&addressdetails=1&format=jsonv2&accept-language=pl`)
             .then(function (resp) {
               if (resp.ok) {
                 return resp.json();
