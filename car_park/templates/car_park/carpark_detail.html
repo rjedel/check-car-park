@@ -67,27 +67,25 @@
               }
             })
             .then(function (data) {
-              try {
-                const houseNumber = data[0]['address']['house_number'];
-                const road = data[0]['address']['road'];
-                const postcode = data[0]['address']['postcode'];
-                const city = data[0]['address']['city'];
-                const town = data[0]['address']['town'];
-                const village = data[0]['address']['village'];
+              const houseNumber = data[0]['address']['house_number'];
+              const road = data[0]['address']['road'];
+              const postcode = data[0]['address']['postcode'];
+              const city = data[0]['address']['city'];
+              const town = data[0]['address']['town'];
+              const village = data[0]['address']['village'];
 
-                map.setView([lat, lon], 17);
-                L.marker([lat, lon])
-                    .addTo(map)
+              map.setView([lat, lon], 17);
+              const marker = L.marker([lat, lon]);
+              marker.addTo(map);
+              if (houseNumber && road && postcode && (city || town || village)) {
+                marker
                     .bindPopup('{{ object.name }}<br><br> adres:<br>' + road + ' ' + houseNumber + '<br>'
                         + postcode + ' ' + (city || town || village))
                     .openPopup();
-              } catch {
-                map.setView([lat, lon], 17);
-                L.marker([lat, lon])
-                    .addTo(map)
+              } else {
+                marker
                     .bindPopup('{{ object.name }}')
                     .openPopup();
-
               }
             })
             .catch(function (err) {
