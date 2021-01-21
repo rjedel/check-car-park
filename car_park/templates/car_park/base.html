@@ -46,9 +46,17 @@
             margin-left: 50px;
         }
 
-        #main {
+        #main, #content, #heading {
             transition: margin-left .5s;
             padding: 16px;
+        }
+
+        #main, #heading {
+            padding: 0;
+        }
+
+        #heading {
+            text-align: center;
         }
 
         @media screen and (max-height: 450px) {
@@ -72,7 +80,7 @@
         <a href="#" onclick="closeNav();">
             <button>Cześć:<br>{{ request.user.get_short_name }}</button>
         </a>
-        <a href="{% url 'logout' %}"  onclick="closeNav();">
+        <a href="{% url 'logout' %}" onclick="closeNav();">
             <button>Wyloguj</button>
         </a>
     {% else %}
@@ -88,19 +96,29 @@
 
 <div id="main">
     <span style="font-size:30px;cursor:pointer" onclick="openNav();">&#9776; Menu</span>
-    {% block content %}{% endblock content %}
 </div>
 
+<div id="heading">
+    {% block heading %}{% endblock heading %}
+</div>
+
+<div id="content">
+    {% block content %}{% endblock content %}
+</div>
 
 <script>
   function openNav() {
     document.getElementById("mySidenav").style.width = "250px";
     document.getElementById("main").style.marginLeft = "250px";
+    document.getElementById("content").style.marginLeft = "250px";
+    document.getElementById("heading").style.marginLeft = "250px";
   }
 
   function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
     document.getElementById("main").style.marginLeft = "0";
+    document.getElementById("content").style.marginLeft = "0";
+    document.getElementById("heading").style.marginLeft = "0";
   }
 </script>
 
