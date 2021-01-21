@@ -1,20 +1,84 @@
 {% extends "car_park/base.html" %}
 {% block title %}Dodaj parking{% endblock %}
+{% block head %}
+    {% load leaflet_tags %}
+    {{ block.super }}
+    {% leaflet_css %}
+    {% leaflet_js %}
+{% endblock head %}
 {% block content %}
     <h1>Dodaj parking</h1>
-        <form method="post" action="">
-            {% csrf_token %}
-            <table>{{ form.as_table }}</table>
-            <button type="submit">Dodaj</button>
-        </form>
-{#    <script>#}
-{#    const city = document.getElementById('id_city');#}
-{#    const street = document.getElementById('id_street');#}
-{#    const street_number = document.getElementById('id_street_number');#}
-{#    if (city.innerText && street.innerText && street_number.innerText) {#}
-{#        document.getElementById('id_city').style.color = "red";#}
-{#    }#}
-{##}
-{##}
-{#    </script>#}
+    <form method="post" action="">
+        {% csrf_token %}
+        <table>{{ form.as_table }}</table>
+        <button type="button" id="search_btn">Szukaj na mapie</button>
+        <button type="submit" id="form_btn">Dodaj</button>
+    </form>
+
+    <div id="div_boundaries">
+        <p id="p_map">{% leaflet_map "add_car_park" callback="map_init" %}</p>
+    </div>
+
+    <script type="text/javascript" id="script_boundaries">
+      function map_init(map, options) {
+        const initialLatLon = [52.2317641, 21.005799675616117];
+        const bounds = [["49.0020468", "14.0696389"], ["55.036025", "24.145783"]];
+
+        map.fitBounds(bounds);
+        map.setView(initialLatLon, 5);
+        const marker = L.marker(initialLatLon, {draggable: 'true'}).addTo(map);
+
+        function notFound() {
+          map.setView(initialLatLon, 5);
+          marker
+              .setLatLng(initialLatLon)
+              .bindPopup('<p><b>"Nie znaleziono"</b></p>')
+              .openPopup();
+        }
+
+        document.getElementById('search_btn').addEventListener('click', function (event) {
+
+          const spot_name = document.getElementById('id_spot_name').value;
+          const street = document.getElementById('id_street').value;
+          const street_number = document.getElementById('id_street_number').value;
+
+          let url = `https://nominatim.openstreetmap.org/search?q=${street_number},${street},${spot_name},polska&limit=1&addressdetails=1&format=jsonv2&accept-language=pl`;
+          if (!spot_name && !street && !street_number) {
+            notFound();
+            return;
+          }
+
+          fetch(url)
+              .then(function (resp) {
+                if (resp.ok) {
+                  return resp.json();
+                } else {
+                  throw new Error("Network error");
+                }
+              })
+              .then(function (data) {
+                try {
+                  const lat = data[0]['lat'];
+                  const lon = data[0]['lon'];
+                  map.setView([lat, lon], 17);
+                  marker
+                      .setLatLng([lat, lon])
+                      .bindPopup('wybrana lokalizacja')
+                      .openPopup();
+                  document.getElementById('id_latitude').value = marker.getLatLng().lat;
+                  document.getElementById('id_longitude').value = marker.getLatLng().lng;
+                } catch {
+                  notFound();
+                }
+              })
+              .catch(function (err) {
+                console.log(err);
+              });
+        });
+      }
+    </script>
+
+    <script>
+      document.querySelectorAll('th').forEach(item => item.setAttribute('align', 'right'));
+    </script>
 {% endblock content %}
