@@ -21,13 +21,12 @@
           lat = "{{ object.latitude_y }}";
           lon = "{{ object.longitude_x }}";
 
-          // zoom to point & add it to map
-          map.setView([lat, lon], 6);
           L.marker([lat, lon]).addTo(map)
               .bindPopup('{{ object.name }}<br><a href="{% url 'car_park_detail' object.pk %}">więcej</a>');
         {% endfor %}
+        const bounds = [["49.0020468", "14.0696389"], ["55.036025", "24.145783"]];
+        map.fitBounds(bounds);
       }
-
       document.getElementById('all_car_parks_map').style.height = '500px';
     </script>
 {% endblock content %}
