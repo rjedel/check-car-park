@@ -70,6 +70,19 @@
       nextRow.appendChild(rightTd);
       previousRow.after(nextRow);
 
+      const addressField = [
+        document.getElementById('id_spot_name'),
+        document.getElementById('id_street'),
+        document.getElementById('id_street_number'),
+      ];
+
+      addressField.forEach(item => item.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          document.getElementById('search_btn').click();
+        }
+      }));
+
       const table = document.querySelector('table');
       const row2 = table.insertRow(3);
       const cell21 = row2.insertCell(0);
