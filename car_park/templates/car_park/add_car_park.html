@@ -6,35 +6,138 @@
     {% leaflet_css %}
     {% leaflet_js %}
 {% endblock head %}
-{% block content %}
+{% block heading %}
     <h1>Dodaj parking</h1>
+{% endblock heading %}
+{% block content %}
     <form method="post" action="">
         {% csrf_token %}
-        <table>{{ form.as_table }}</table>
-        <button type="button" id="search_btn">Szukaj na mapie</button>
-        <button type="submit" id="form_btn">Dodaj</button>
+        <table>
+            {{ form.as_table }}
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" id="form_btn">Dodaj parking</button>
+                </td>
+            </tr>
+        </table>
     </form>
 
-    <div id="div_boundaries">
+    <div id="add_car_park">
         <p id="p_map">{% leaflet_map "add_car_park" callback="map_init" %}</p>
     </div>
 
-    <script type="text/javascript" id="script_boundaries">
+    <script>
+      const is_mobile = !!navigator.userAgent.match(/iphone|android|blackberry/ig) || false;
+      if (!is_mobile) {
+        document.getElementById('content').style.display = 'flex';
+        document.getElementById('content').style.flexDirection = 'row';
+      }
+
+      document.getElementById('add_car_park').style.height = '500px';
+      document.getElementById('add_car_park').style.width = '600px';
+
+      document.querySelectorAll('th').forEach(item => item.setAttribute('align', 'right'));
+      document.querySelectorAll('th').forEach(item => item.setAttribute('width', '280'));
+      document.getElementById('id_spot_name').setAttribute('required', 'true');
+      document.getElementById('id_street_number').setAttribute('required', 'true');
+
+      const checkbox = document.querySelector('#id_free_of_charge');
+      const tariffsRows = [
+        document.querySelector('#id_tariffs_name').parentElement.parentElement,
+        document.querySelector('#id_first_hour_fee').parentElement.parentElement,
+        document.querySelector('#id_maximum_additional_fee').parentElement.parentElement,
+        document.querySelector('#id_additional_fee_description').parentElement.parentElement,
+      ];
+      checkbox.addEventListener("change", function (event) {
+        if (checkbox.checked) {
+          tariffsRows.forEach(item => item.style.display = 'none');
+        } else {
+          tariffsRows.forEach(item => item.style.display = 'table-row');
+        }
+      });
+
+      const previousRow = document.getElementById('id_street_number').parentElement.parentElement;
+      let nextRow = document.createElement('tr');
+      let leftTd = document.createElement('td');
+      nextRow.appendChild(leftTd);
+      let rightTd = document.createElement('td');
+      let search_btn = document.createElement('button');
+      search_btn.setAttribute('type', 'button');
+      search_btn.id = "search_btn";
+      search_btn.innerText = 'Szukaj na mapie';
+      rightTd.appendChild(search_btn);
+      nextRow.appendChild(rightTd);
+      previousRow.after(nextRow);
+
+      const table = document.querySelector('table');
+      const row2 = table.insertRow(3);
+      const cell21 = row2.insertCell(0);
+      const cell22 = row2.insertCell(1);
+      cell21.innerText = '';
+      let show_field_btn = document.createElement('button');
+      show_field_btn.setAttribute('type', 'button');
+      show_field_btn.id = "show_field_btn";
+      show_field_btn.innerHTML = 'pokarz pola do<br>wyszukiwania<br>po adresie';
+      cell22.appendChild(show_field_btn);
+      document.getElementById('show_field_btn').parentElement.parentElement.style.display = "none";
+    </script>
+
+    <script type="text/javascript">
       function map_init(map, options) {
         const initialLatLon = [52.2317641, 21.005799675616117];
         const bounds = [["49.0020468", "14.0696389"], ["55.036025", "24.145783"]];
 
-        map.fitBounds(bounds);
-        map.setView(initialLatLon, 5);
+
+        map.setView(initialLatLon, 6).fitBounds(bounds);
         const marker = L.marker(initialLatLon, {draggable: 'true'}).addTo(map);
 
+        if (document.getElementById('id_latitude').value && document.getElementById('id_longitude').value) {
+          marker
+              .setLatLng([
+                document.getElementById('id_latitude').value,
+                document.getElementById('id_longitude').value,
+              ]);
+          setPosition();
+        }
+
         function notFound() {
-          map.setView(initialLatLon, 5);
+          map.setView(initialLatLon, 6).fitBounds(bounds);
           marker
               .setLatLng(initialLatLon)
-              .bindPopup('<p><b>"Nie znaleziono"</b></p>')
+              .bindPopup('<p style="color: red;font-size: 20px;text-align: center;">Brak poprawnej lokalizacji</p>')
               .openPopup();
         }
+
+        function setPosition() {
+          document.getElementById('id_latitude').value = marker.getLatLng().lat;
+          document.getElementById('id_longitude').value = marker.getLatLng().lng;
+          document.getElementById('id_spot_name').removeAttribute('required');
+          document.getElementById('id_street_number').removeAttribute('required');
+          document.getElementById('id_spot_name').value = '';
+          document.getElementById('id_spot_name').parentElement.parentElement.style.display = "none";
+          document.getElementById('id_street').value = '';
+          document.getElementById('id_street').parentElement.parentElement.style.display = "none";
+          document.getElementById('id_street_number').value = '';
+          document.getElementById('id_street_number').parentElement.parentElement.style.display = "none";
+          marker
+              .bindPopup('<p style="color: green;font-size: 20px;text-align: center;">poprawnie<br>wybrana lokalizacja</p>')
+              .openPopup();
+          document.getElementById('show_field_btn').parentElement.parentElement.style.display = "table-row";
+          document.getElementById('search_btn').parentElement.parentElement.style.display = "none";
+        }
+
+        document.getElementById('show_field_btn').addEventListener('click', function (event) {
+          document.getElementById('show_field_btn').parentElement.parentElement.style.display = 'none';
+          document.getElementById('search_btn').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_spot_name').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_street').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_street_number').parentElement.parentElement.style.display = 'table-row';
+        });
+
+        marker.on('dragend', function (event) {
+          setPosition();
+        });
 
         document.getElementById('search_btn').addEventListener('click', function (event) {
 
@@ -62,11 +165,8 @@
                   const lon = data[0]['lon'];
                   map.setView([lat, lon], 17);
                   marker
-                      .setLatLng([lat, lon])
-                      .bindPopup('wybrana lokalizacja')
-                      .openPopup();
-                  document.getElementById('id_latitude').value = marker.getLatLng().lat;
-                  document.getElementById('id_longitude').value = marker.getLatLng().lng;
+                      .setLatLng([lat, lon]);
+                  setPosition();
                 } catch {
                   notFound();
                 }
@@ -76,9 +176,5 @@
               });
         });
       }
-    </script>
-
-    <script>
-      document.querySelectorAll('th').forEach(item => item.setAttribute('align', 'right'));
     </script>
 {% endblock content %}

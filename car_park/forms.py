@@ -4,16 +4,16 @@ from django.contrib.auth.models import User
 
 
 class AddCarParkForm(forms.Form):
-    name = forms.CharField(label='Nazwa', min_length=2, max_length=100)
-    description = forms.CharField(label='Opis', required=False,
-                                  widget=forms.Textarea(attrs={'cols': 21, 'placeholder': 'pole nie jest wymagane'}))
-    spot_name = forms.CharField(label='Miejscowość', min_length=2, max_length=100)
+    spot_name = forms.CharField(label='Miejscowość', min_length=2, max_length=100, required=False)
     street = forms.CharField(label='Ulica', min_length=2, max_length=100, required=False)
     street.widget.attrs.update(placeholder='pole nie jest wymagane')
-    street_number = forms.IntegerField(label='Numer', widget=forms.TextInput)
+    street_number = forms.IntegerField(label='Numer', widget=forms.TextInput, required=False)
+    name = forms.CharField(label='Nazwa parkingu', min_length=2, max_length=100)
+    description = forms.CharField(label='Opis', required=False,
+                                  widget=forms.Textarea(attrs={'cols': 21, 'placeholder': 'pole nie jest wymagane'}))
     longitude = forms.CharField(widget=forms.HiddenInput())
     latitude = forms.CharField(widget=forms.HiddenInput())
-    free_of_charge = forms.BooleanField(label='Czy jest bezpłatny', required=False)
+    free_of_charge = forms.BooleanField(label='Czy parking jest bezpłatny', required=False)
     tariffs_name = forms.CharField(label='Nazwa taryfy', required=False,
                                    widget=forms.TextInput(attrs={'placeholder': 'pole nie jest wymagane'}))
     first_hour_fee = forms.DecimalField(label='Opłata za pierwszą godzinę postoju', max_digits=5, decimal_places=2,
@@ -38,9 +38,9 @@ class AddCarParkForm(forms.Form):
             )
         if not free_of_charge and not any([first_hour_fee, maximum_additional_fee, additional_fee_description]):
             raise forms.ValidationError(
-                'Proszę wypełnij przynajmniej jedno z trzech pól dotyczących opłaty'
+                'Proszę wypełnij przynajmniej jedno z czterech pól dotyczących opłaty'
             )
-        if not longitude and not latitude:
+        if not longitude or not latitude:
             raise forms.ValidationError('Nie można dodać parkingu bez jego lokalizacji')
         return cleaned_data
 

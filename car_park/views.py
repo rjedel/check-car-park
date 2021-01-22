@@ -43,10 +43,8 @@ class AddCarParkView(View):
             description = form.cleaned_data['description']
             longitude = form.cleaned_data['longitude']
             latitude = form.cleaned_data['latitude']
-            # longitude = "20.892127886317226"
-            # latitude = "52.232701199999994"
-
             free_of_charge = form.cleaned_data['free_of_charge']
+
             tariffs_name = form.cleaned_data['tariffs_name']
             first_hour_fee = form.cleaned_data['first_hour_fee']
             maximum_additional_fee = form.cleaned_data['maximum_additional_fee']
@@ -68,14 +66,7 @@ class AddCarParkView(View):
                 tariff=tariff,
             )
             return redirect(reverse('car_park_detail', args=[car_park.pk]))
-        return render(request, 'car_park/add_car_park.html', {'form': AddCarParkForm(
-            data=request.POST,
-            initial={
-                'spot_name': '',
-                'street': '',
-                'street_number': None,
-            }
-        )})
+        return render(request, 'car_park/add_car_park.html', {'form': AddCarParkForm(data=request.POST)})
 
 
 class AboutView(View):
