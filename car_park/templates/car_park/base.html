@@ -77,8 +77,8 @@
 <div id="mySidenav" class="sidenav">
     <a href="#" class="closebtn" onclick="closeNav();">&times;</a>
     {% if request.user.is_authenticated %}
-        <a href="#" onclick="closeNav();">
-            <button>Cześć:<br>{{ request.user.get_short_name }}</button>
+        <a href="{% url 'view_profile' %}" onclick="closeNav();">
+            <button id="profile_btn">Cześć:<br>{{ request.user.get_username }}</button>
         </a>
         <a href="{% url 'logout' %}" onclick="closeNav();">
             <button>Wyloguj</button>
@@ -120,6 +120,14 @@
     document.getElementById("content").style.marginLeft = "0";
     document.getElementById("heading").style.marginLeft = "0";
   }
+
+  const profile_btn = document.getElementById("profile_btn");
+  profile_btn.addEventListener('mouseenter', function (event) {
+    profile_btn.innerHTML = 'wyświetl informacje<br>o profilu';
+  });
+  profile_btn.addEventListener('mouseleave', function (event) {
+    profile_btn.innerHTML = 'Cześć:<br>{{ request.user.get_username }}';
+  });
 </script>
 
 </body>

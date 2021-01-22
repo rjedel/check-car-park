@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -53,3 +54,28 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("username", "password1", "password2", "first_name", "last_name", "email",)
+
+
+class EditProfileForm(forms.ModelForm):
+    username = forms.CharField(label='Nazwa użytkownika')
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email',)
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    new_password1 = forms.CharField(label='Nowe hasło', widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        old_password = cleaned_data.get('old_password')
+        new_password1 = cleaned_data.get('new_password1')
+        new_password2 = cleaned_data.get('new_password2')
+        if old_password == new_password1 or old_password == new_password2:
+            raise forms.ValidationError('Nowe hasło musi się różnić od starego')
+        return cleaned_data

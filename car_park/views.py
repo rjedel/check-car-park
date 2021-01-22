@@ -1,3 +1,5 @@
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.gis.geos import fromstr
 from django.shortcuts import render, redirect
@@ -5,7 +7,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, ListView, CreateView
 
-from .forms import CustomUserCreationForm, AddCarParkForm
+from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm
 from .models import CarPark, Tariff
 
 
@@ -77,3 +79,36 @@ class AboutView(View):
 class ContactView(View):
     def get(self, request):
         return render(request, 'car_park/contact.html')
+
+
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        return render(request, 'car_park/profile.html', {'user': user})
+
+
+class EditProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = EditProfileForm(instance=request.user)
+        return render(request, 'car_park/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('view_profile'))
+        return render(request, 'car_park/edit_profile.html', {'form': form})
+
+
+class ChangePasswordView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = CustomPasswordChangeForm(user=request.user)
+        return render(request, 'car_park/change_password.html', {'form': form})
+
+    def post(self, request):
+        form = CustomPasswordChangeForm(data=request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect(reverse('view_profile') + '#password_changed')
+        return render(request, 'car_park/change_password.html', {'form': form})

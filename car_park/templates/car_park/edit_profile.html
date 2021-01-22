@@ -1,0 +1,22 @@
+{% extends "car_park/base.html" %}
+{% block title %}Edytuj profil{% endblock %}
+{% block heading %}
+    <h1>Edytuj&nbsp;profil</h1>
+{% endblock heading %}
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" id="form_btn">Zmień dane</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <a href="{% url 'view_profile' %}">
+        <button type="button">Powrót do informacji o profilu</button>
+    </a>
+{% endblock content %}

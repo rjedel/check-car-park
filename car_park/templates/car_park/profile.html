@@ -1,0 +1,35 @@
+{% extends "car_park/base.html" %}
+{% block title %}Profil użytkownika{% endblock %}
+{% block heading %}
+    <h1>Profil&nbsp;użytkownika</h1>
+{% endblock heading %}
+{% block content %}
+    <div>
+        {% if user.get_username %}<p>Nazwa Użytkownika: <b>{{ user.get_username }}</b></p>{% endif %}
+        {% if user.get_short_name %}<p>Imię: <b>{{ user.get_short_name }}</b></p>{% endif %}
+        {% if user.last_name %}<p>Nazwisko: <b>{{ user.last_name }}</b></p>{% endif %}
+        {% if user.email %}<p>e-mail: <b>{{ user.email }}</b></p>{% endif %}
+        <a href="{% url 'edit_profile' %}" style="display: inline-block">
+            <button type="button" id="change_data_btn">Zmień dane</button>
+        </a>
+        <br>
+        <br>
+        <a href="{% url 'change_password' %}">
+            <button type="button">Zmień hasło</button>
+        </a>
+    </div>
+    <script>
+      if (location.hash === '#password_changed') {
+        history.replaceState(null, null, ' ');
+        const previousElement = document.querySelector('body');
+        let paragraph = document.createElement('p');
+        paragraph.id = 'to_hide';
+        paragraph.style.color = 'red';
+        paragraph.innerText = 'Hasło zmienione poprawnie';
+        previousElement.appendChild(paragraph);
+        setTimeout(function () {
+          document.getElementById('to_hide').style.display = 'none';
+        }, 4000);
+      }
+    </script>
+{% endblock content %}
