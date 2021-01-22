@@ -123,6 +123,7 @@
           marker
               .bindPopup('<p style="color: green;font-size: 20px;text-align: center;">poprawnie<br>wybrana lokalizacja</p>')
               .openPopup();
+          map.options.closePopupOnClick = false;
           document.getElementById('show_field_btn').parentElement.parentElement.style.display = "table-row";
           document.getElementById('search_btn').parentElement.parentElement.style.display = "none";
         }
