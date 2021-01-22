@@ -140,6 +140,12 @@
           setPosition();
         });
 
+        map.on('click', function (event) {
+          const latlng = map.mouseEventToLatLng(event.originalEvent);
+          marker.setLatLng(latlng);
+          setPosition();
+        });
+
         document.getElementById('search_btn').addEventListener('click', function (event) {
 
           const spot_name = document.getElementById('id_spot_name').value;
