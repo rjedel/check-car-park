@@ -121,13 +121,16 @@
     document.getElementById("heading").style.marginLeft = "0";
   }
 
-  const profile_btn = document.getElementById("profile_btn");
-  profile_btn.addEventListener('mouseenter', function (event) {
-    profile_btn.innerHTML = 'wyświetl informacje<br>o profilu';
-  });
-  profile_btn.addEventListener('mouseleave', function (event) {
-    profile_btn.innerHTML = 'Cześć:<br>{{ request.user.get_username }}';
-  });
+
+  if (document.getElementById('profile_btn')) {
+    const profile_btn = document.getElementById('profile_btn');
+    profile_btn.addEventListener('mouseenter', function (event) {
+      profile_btn.innerHTML = 'wyświetl informacje<br>o profilu';
+    });
+    profile_btn.addEventListener('mouseleave', function (event) {
+      profile_btn.innerHTML = 'Cześć:<br>{{ request.user.get_username }}';
+    });
+  }
 </script>
 
 </body>
