@@ -101,6 +101,23 @@
         const initialLatLon = [52.2317641, 21.005799675616117];
         const bounds = [["49.0020468", "14.0696389"], ["55.036025", "24.145783"]];
 
+        function getLocation() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(adjustPosition);
+          } else {
+            console.log("Geolocation is not supported by this browser.");
+          }
+        }
+
+        function adjustPosition(position) {
+          marker.setLatLng([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
+          setPosition();
+        }
+
+        getLocation();
 
         map.setView(initialLatLon, 6).fitBounds(bounds);
         const marker = L.marker(initialLatLon, {draggable: 'true'}).addTo(map);
