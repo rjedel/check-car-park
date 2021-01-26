@@ -1,13 +1,15 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import fromstr
+from django.db.models import Max, Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, ListView, CreateView
 
-from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm
+from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm, SearchForm
 from .models import CarPark, Tariff
 
 
@@ -112,3 +114,76 @@ class ChangePasswordView(LoginRequiredMixin, View):
             update_session_auth_hash(request, form.user)
             return redirect(reverse('view_profile') + '#password_changed')
         return render(request, 'car_park/change_password.html', {'form': form})
+
+
+class SearchView(View):
+    def get(self, request):
+        form = SearchForm()
+
+        name = request.GET.get('name')
+        longitude = request.GET.get('longitude')
+        latitude = request.GET.get('latitude')
+        free_of_charge = request.GET.get('free_of_charge') == 'on'
+        tariffs_name = request.GET.get('tariffs_name')
+        first_hour_fee_from = float(request.GET.get('first_hour_fee_from', '0'))
+        first_hour_fee_to = float(request.GET.get('first_hour_fee_to', '0'))
+        maximum_additional_fee = float(request.GET.get('maximum_additional_fee', '0'))
+
+        has_distance = False
+
+        to_filter = CarPark.objects.order_by('free_of_charge', '-tariff__first_hour_fee')
+        if len(request.GET) > 0:
+            if name:
+                to_filter = to_filter.filter(name__icontains=name)
+            if free_of_charge:
+                to_filter = to_filter.filter(free_of_charge=True)
+            if not free_of_charge:
+                if tariffs_name:
+                    to_filter = to_filter.filter(tariff__tariffs_name__icontains=tariffs_name)
+                if maximum_additional_fee >= 0:
+                    to_filter = to_filter.filter(
+                        Q(tariff__maximum_additional_fee__lte=maximum_additional_fee) | Q(free_of_charge=True)
+                    )
+                if first_hour_fee_from > 0:
+                    to_filter = to_filter.filter(tariff__first_hour_fee__gte=first_hour_fee_from)
+                if first_hour_fee_from == 0:
+                    to_filter = to_filter.filter(
+                        Q(tariff__first_hour_fee__gte=0) | Q(free_of_charge=True)
+                    )
+                if first_hour_fee_to > 0:
+                    to_filter = to_filter.filter(
+                        Q(tariff__first_hour_fee__lte=first_hour_fee_to) | Q(free_of_charge=True)
+                    )
+                if first_hour_fee_to == 0:
+                    to_filter = to_filter.filter(free_of_charge=True)
+                if longitude and latitude:
+                    user_location = fromstr('POINT({} {})'.format(longitude, latitude), srid=4326)
+                    to_filter = to_filter.annotate(
+                        distance=Distance('location', user_location)
+                    ).order_by('distance')
+                    for obj in to_filter:
+                        if bool(obj.distance.km):
+                            has_distance = True
+                            break
+            form = SearchForm(data=request.GET)
+
+        db_max_first_hour_fee = str(
+            float(Tariff.objects.all().aggregate(Max('first_hour_fee'))['first_hour_fee__max'])
+        )
+        db_max_maximum_additional_fee = str(
+            float(Tariff.objects.all().aggregate(Max('maximum_additional_fee'))['maximum_additional_fee__max'])
+        )
+
+        ctx = {
+            'form': form,
+            'db_max_first_hour_fee': db_max_first_hour_fee,
+            'db_max_maximum_additional_fee': db_max_maximum_additional_fee,
+            'has_distance': has_distance,
+            'outcome': to_filter,
+            'name': name or '',
+            'free_of_charge': 'on' if free_of_charge else '',
+            'first_hour_fee_from': first_hour_fee_from,
+            'first_hour_fee_to': first_hour_fee_to,
+            'maximum_additional_fee': maximum_additional_fee,
+        }
+        return render(request, 'car_park/search.html', ctx)

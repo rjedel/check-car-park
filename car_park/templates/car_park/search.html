@@ -1,0 +1,332 @@
+{% extends "car_park/base.html" %}
+{% block title %}Znajdź parking{% endblock %}
+{% block head %}
+    {% load leaflet_tags %}
+    {{ block.super }}
+    {% leaflet_css %}
+    {% leaflet_js %}
+{% endblock head %}
+{% block heading %}
+    <h1>Znajdź&nbsp;parking</h1>
+{% endblock heading %}
+{% block content %}
+    <form>
+        <table>
+            {{ form.as_table }}
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" id="form_btn">Szukaj parkingu</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div id="add_car_park">
+        <p id="p_map">{% leaflet_map "add_car_park" callback="map_init" %}</p>
+    </div>
+
+    <script>
+      const is_mobile = !!navigator.userAgent.match(/iphone|android|blackberry/ig) || false;
+      if (!is_mobile) {
+        document.getElementById('content').style.display = 'flex';
+        document.getElementById('content').style.flexDirection = 'row';
+      }
+
+      const firstHourFeeFrom = document.getElementById('id_first_hour_fee_from');
+      firstHourFeeFrom.setAttribute('step', '0.01');
+      firstHourFeeFrom.setAttribute('min', '0');
+      firstHourFeeFrom.setAttribute('max', {{ db_max_first_hour_fee }});
+      if (!!parseFloat('{{ first_hour_fee_from }}')) {
+        firstHourFeeFrom.setAttribute('value', '{{ first_hour_fee_from }}'.replace(',', '.'));
+      } else {
+        firstHourFeeFrom.setAttribute('value', '0');
+      }
+
+      const firstHourFeeTo = document.getElementById('id_first_hour_fee_to');
+      firstHourFeeTo.setAttribute('step', '0.01');
+      firstHourFeeTo.setAttribute('min', '0');
+      firstHourFeeTo.setAttribute('max', {{ db_max_first_hour_fee }});
+      if (!!parseFloat('{{ first_hour_fee_to }}')) {
+        firstHourFeeTo.setAttribute('value', '{{ first_hour_fee_to }}'.replace(',', '.'));
+      } else {
+        firstHourFeeTo.setAttribute('value', '{{ db_max_first_hour_fee }}');
+      }
+
+      const maximumAdditionalFee = document.getElementById('id_maximum_additional_fee');
+      maximumAdditionalFee.setAttribute('step', '0.01');
+      maximumAdditionalFee.setAttribute('min', '0');
+      maximumAdditionalFee.setAttribute('max', {{ db_max_maximum_additional_fee }});
+      if (!!parseFloat('{{ maximum_additional_fee }}')) {
+        maximumAdditionalFee.setAttribute('value', '{{ maximum_additional_fee }}'.replace(',', '.'));
+      } else {
+        maximumAdditionalFee.setAttribute('value', '0');
+      }
+
+      function createValue(rangeField, valueIdName) {
+        const feeRow = rangeField.parentElement.parentElement;
+        feeRow.firstElementChild.setAttribute('rowspan', '2');
+
+        const nextToFeeFromRow = document.createElement('tr');
+        const cellRight = document.createElement('td');
+        const cellParagraph = document.createElement('p');
+        cellParagraph.innerText = parseFloat(rangeField.value).toFixed(2) + ' zł';
+        cellParagraph.style.margin = '0';
+        cellParagraph.id = valueIdName;
+        cellRight.appendChild(cellParagraph);
+        nextToFeeFromRow.appendChild(cellRight);
+        feeRow.after(nextToFeeFromRow);
+
+        rangeField.addEventListener('change', function (event) {
+          cellParagraph.innerText = parseFloat(rangeField.value).toFixed(2) + ' zł';
+        });
+      }
+
+      createValue(firstHourFeeFrom, 'fee_from_value');
+      createValue(firstHourFeeTo, 'fee_to_value');
+      createValue(maximumAdditionalFee, 'max_add_fee_value');
+
+      document.getElementById('add_car_park').style.height = '500px';
+      document.getElementById('add_car_park').style.width = '600px';
+
+      document.querySelectorAll('th').forEach(item => item.setAttribute('align', 'right'));
+      document.querySelectorAll('th').forEach(item => item.setAttribute('width', '280'));
+
+      const tariffsElements = [
+        document.querySelector('#id_tariffs_name'),
+        document.querySelector('#id_first_hour_fee_from'),
+        document.querySelector('#id_first_hour_fee_to'),
+        document.querySelector('#id_maximum_additional_fee'),
+        document.querySelector('#fee_from_value'),
+        document.querySelector('#fee_to_value'),
+        document.querySelector('#max_add_fee_value'),
+      ];
+
+      const tariffsRows = [];
+      tariffsElements.forEach(el => tariffsRows.push(el.parentElement.parentElement));
+
+      const checkbox = document.querySelector('#id_free_of_charge');
+
+      function hideTariffsElements() {
+        tariffsRows.forEach(item => item.style.display = 'none');
+        tariffsElements[0].value = '';
+        tariffsElements[1].value = 0;
+        tariffsElements[4].innerText = parseFloat(tariffsElements[1].value).toFixed(2) + ' zł';
+        tariffsElements[2].value = '{{ db_max_first_hour_fee }}';
+        tariffsElements[5].innerText = parseFloat(tariffsElements[2].value).toFixed(2) + ' zł';
+        tariffsElements[3].value = 0;
+        tariffsElements[6].innerText = parseFloat(tariffsElements[3].value).toFixed(2) + ' zł';
+      }
+
+      if ('{{ free_of_charge }}' === 'on') {
+        hideTariffsElements();
+      } else {
+        tariffsRows.forEach(item => item.style.display = 'table-row');
+      }
+
+      checkbox.addEventListener('change', function (event) {
+        if (checkbox.checked) {
+          hideTariffsElements();
+        } else {
+          tariffsRows.forEach(item => item.style.display = 'table-row');
+        }
+      });
+
+      const previousRow = document.getElementById('id_street_number').parentElement.parentElement;
+      let nextRow = document.createElement('tr');
+      let leftTd = document.createElement('td');
+      nextRow.appendChild(leftTd);
+      let rightTd = document.createElement('td');
+      let search_btn = document.createElement('button');
+      search_btn.setAttribute('type', 'button');
+      search_btn.id = 'search_btn';
+      search_btn.innerText = 'Szukaj na mapie';
+      rightTd.appendChild(search_btn);
+      nextRow.appendChild(rightTd);
+      previousRow.after(nextRow);
+
+      const addressField = [
+        document.getElementById('id_spot_name'),
+        document.getElementById('id_street'),
+        document.getElementById('id_street_number'),
+      ];
+
+      addressField.forEach(item => item.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          document.getElementById('search_btn').click();
+        }
+      }));
+
+      const table = document.querySelector('table');
+      const row = table.insertRow(3);
+      const cell21 = row.insertCell(0);
+      const cell22 = row.insertCell(1);
+      cell21.innerText = '';
+      let show_field_btn = document.createElement('button');
+      show_field_btn.setAttribute('type', 'button');
+      show_field_btn.id = 'show_field_btn';
+      show_field_btn.innerHTML = 'pokarz pola do<br>wyszukiwania<br>po adresie';
+      cell22.appendChild(show_field_btn);
+      document.getElementById('show_field_btn').parentElement.parentElement.style.display = 'none';
+    </script>
+
+    <script type="text/javascript">
+      function map_init(map, options) {
+        const initialLatLon = [52.2317641, 21.005799675616117];
+        const bounds = [['49.0020468', '14.0696389'], ['55.036025', '24.145783']];
+
+        function getLocation() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(adjustPosition);
+          } else {
+            console.log('Geolocation is not supported by this browser.');
+          }
+        }
+
+        function adjustPosition(position) {
+          marker.setLatLng([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
+          setPosition();
+        }
+
+        getLocation();
+
+
+        const greenIcon = new L.Icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+
+        map.setView(initialLatLon, 6).fitBounds(bounds);
+        const marker = L.marker(initialLatLon, {draggable: 'true', icon: greenIcon}).addTo(map);
+
+        if (document.getElementById('id_latitude').value && document.getElementById('id_longitude').value) {
+          marker
+              .setLatLng([
+                document.getElementById('id_latitude').value,
+                document.getElementById('id_longitude').value,
+              ]);
+          setPosition();
+        }
+
+        function notFound() {
+          map.setView(initialLatLon, 6).fitBounds(bounds);
+          marker
+              .setLatLng(initialLatLon)
+              .bindPopup('<p style="color: red;font-size: 20px;text-align: center;">Brak poprawnej lokalizacji</p>')
+              .openPopup();
+        }
+
+        function setPosition() {
+          document.getElementById('id_latitude').value = marker.getLatLng().lat;
+          document.getElementById('id_longitude').value = marker.getLatLng().lng;
+          document.getElementById('id_spot_name').value = '';
+          document.getElementById('id_spot_name').parentElement.parentElement.style.display = 'none';
+          document.getElementById('id_street').value = '';
+          document.getElementById('id_street').parentElement.parentElement.style.display = 'none';
+          document.getElementById('id_street_number').value = '';
+          document.getElementById('id_street_number').parentElement.parentElement.style.display = 'none';
+          marker
+              .bindPopup('<p style="color: green;font-size: 20px;text-align: center;">poprawnie<br>wybrana lokalizacja</p>')
+              .openPopup();
+          map.options.closePopupOnClick = false;
+          document.getElementById('show_field_btn').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('search_btn').parentElement.parentElement.style.display = 'none';
+        }
+
+        document.getElementById('show_field_btn').addEventListener('click', function (event) {
+          document.getElementById('show_field_btn').parentElement.parentElement.style.display = 'none';
+          document.getElementById('search_btn').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_spot_name').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_street').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_street_number').parentElement.parentElement.style.display = 'table-row';
+          document.getElementById('id_latitude').value = '';
+          document.getElementById('id_longitude').value = '';
+        });
+
+        marker.on('dragend', function (event) {
+          setPosition();
+        });
+
+        map.on('click', function (event) {
+          const latlng = map.mouseEventToLatLng(event.originalEvent);
+          marker.setLatLng(latlng);
+          setPosition();
+        });
+
+        document.getElementById('search_btn').addEventListener('click', function (event) {
+
+          const spot_name = document.getElementById('id_spot_name').value;
+          const street = document.getElementById('id_street').value;
+          const street_number = document.getElementById('id_street_number').value;
+
+          let url = `https://nominatim.openstreetmap.org/search?q=${street_number},${street},${spot_name},polska&limit=1&addressdetails=1&format=jsonv2&accept-language=pl`;
+          if (!spot_name && !street && !street_number) {
+            notFound();
+            return;
+          }
+
+          fetch(url)
+              .then(function (resp) {
+                if (resp.ok) {
+                  return resp.json();
+                } else {
+                  throw new Error('Network error');
+                }
+              })
+              .then(function (data) {
+                try {
+                  const lat = data[0]['lat'];
+                  const lon = data[0]['lon'];
+                  map.setView([lat, lon], 17);
+                  marker
+                      .setLatLng([lat, lon]);
+                  setPosition();
+                } catch {
+                  notFound();
+                }
+              })
+              .catch(function (err) {
+                console.log(err);
+              });
+        });
+
+        let lat;
+        let lon;
+        {% for object in outcome %}
+          lat = '{{ object.latitude_y }}';
+          lon = '{{ object.longitude_x }}';
+
+          L.marker([lat, lon]).addTo(map)
+              .bindPopup('{{ object.name }}<br><a href="{% url 'car_park_detail' object.pk %}">więcej</a>');
+        {% endfor %}
+      }
+    </script>
+    {% if has_distance %}
+        <div>
+            <table>
+                <tr>
+                    <th>Odległość</th>
+                    <th>Nazwa</th>
+                    <th>Szczegóły</th>
+                    {#                <th>Gwiazdki</th>#}
+                </tr>
+                {% for object in outcome %}
+                    <tr>
+                        <td>{{ object.distance.km | floatformat:1 }} km</td>
+                        <td>{{ object.name }}</td>
+                        <td><a href="{% url 'car_park_detail' object.pk %}">więcej</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endblock content %}

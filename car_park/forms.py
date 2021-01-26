@@ -79,3 +79,33 @@ class CustomPasswordChangeForm(PasswordChangeForm):
         if old_password == new_password1 or old_password == new_password2:
             raise forms.ValidationError('Nowe hasło musi się różnić od starego')
         return cleaned_data
+
+
+class SearchForm(forms.Form):
+    spot_name = forms.CharField(label='Miejscowość', min_length=2, max_length=100, required=False)
+    street = forms.CharField(label='Ulica', min_length=2, max_length=100, required=False)
+    street_number = forms.IntegerField(label='Numer', widget=forms.TextInput, required=False)
+    name = forms.CharField(label='Nazwa parkingu', min_length=2, max_length=100, required=False)
+    longitude = forms.CharField(widget=forms.HiddenInput(), required=False)
+    latitude = forms.CharField(widget=forms.HiddenInput(), required=False)
+    free_of_charge = forms.BooleanField(label='Szukaj tylko bezpłatnych parkingów', required=False)
+    tariffs_name = forms.CharField(label='Nazwa taryfy', required=False)
+    first_hour_fee_from = forms.DecimalField(label='Opłata za pierwszą godzinę postoju OD', max_digits=5,
+                                             decimal_places=2,
+                                             min_value=0, required=False,
+                                             widget=forms.TextInput(attrs={'type': 'range'}))
+    first_hour_fee_to = forms.DecimalField(label='Opłata za pierwszą godzinę postoju DO', max_digits=5,
+                                           decimal_places=2,
+                                           min_value=0, required=False,
+                                           widget=forms.TextInput(attrs={'type': 'range'}))
+    maximum_additional_fee = forms.DecimalField(label='Maksymalna opłata dodatkowa', max_digits=5, decimal_places=2,
+                                                min_value=0, required=False,
+                                                widget=forms.TextInput(attrs={'type': 'range'}))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        first_hour_fee_from = cleaned_data.get('first_hour_fee_from')
+        first_hour_fee_to = cleaned_data.get('first_hour_fee_to')
+        if first_hour_fee_from > first_hour_fee_to:
+            raise forms.ValidationError('Opłata "OD" musi być większa od opłaty "DO"')
+        return cleaned_data
