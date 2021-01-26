@@ -3,14 +3,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import fromstr
+from django.db import IntegrityError
 from django.db.models import Max, Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, ListView, CreateView
 
-from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm, SearchForm
-from .models import CarPark, Tariff
+from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm, SearchForm, \
+    OpinionForm
+from .models import CarPark, Tariff, Opinion
 
 
 class SignupView(CreateView):
@@ -187,3 +189,38 @@ class SearchView(View):
             'maximum_additional_fee': maximum_additional_fee,
         }
         return render(request, 'car_park/search.html', ctx)
+
+
+class OpinionView(LoginRequiredMixin, View):
+
+    def get(self, request, pk):
+        return render(request, 'car_park/opinion_form.html', {'form': OpinionForm()})
+
+    def post(self, request, pk):
+        form = OpinionForm(data=request.POST)
+        if form.is_valid():
+            opinion = form.cleaned_data['opinion']
+            stars = form.cleaned_data['stars']
+            user = request.user
+            car_park = CarPark.objects.get(pk=pk)
+            recommendation = form.cleaned_data['recommendation']
+            try:
+                opinion_obj = Opinion.objects.create(
+                    opinion=opinion,
+                    stars=stars,
+                    user=user,
+                    car_park=car_park,
+                )
+                if recommendation == '1':
+                    opinion_obj.up_vote(user)
+                if recommendation == '0':
+                    opinion_obj.down_vote(user)
+            except IntegrityError:
+                ctx = {
+                    'form': OpinionForm(),
+                    'msg': 'Twoja opinia na temat tego parkingu została już dodana'
+                }
+                return render(request, 'car_park/opinion_form.html', ctx)
+            else:
+                return redirect(reverse('car_park_detail', args=[car_park.pk]))
+        return render(request, 'car_park/opinion_form.html', {'form': form})

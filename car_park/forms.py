@@ -3,6 +3,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from car_park.models import Opinion
+
 
 class AddCarParkForm(forms.Form):
     spot_name = forms.CharField(label='Miejscowość', min_length=2, max_length=100, required=False)
@@ -109,3 +111,13 @@ class SearchForm(forms.Form):
         if first_hour_fee_from > first_hour_fee_to:
             raise forms.ValidationError('Opłata "OD" musi być większa od opłaty "DO"')
         return cleaned_data
+
+
+class OpinionForm(forms.Form):
+    YES_NO_CHOICES = (
+        (0, 'Nie'),
+        (1, 'Tak'),
+    )
+    opinion = forms.CharField(label='Opinia', min_length=2, max_length=100, widget=forms.Textarea)
+    stars = forms.ChoiceField(label='Ile gwiazdek', choices=Opinion.STARS_CHOICES, widget=forms.RadioSelect)
+    recommendation = forms.ChoiceField(label='Czy polecasz', choices=YES_NO_CHOICES, widget=forms.RadioSelect)

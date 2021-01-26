@@ -45,10 +45,6 @@ class Opinion(models.Model):
     class Meta:
         unique_together = ('user_id', 'car_park_id',)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
-        self.opinion_votes = None
-
     def up_vote(self, user):
         try:
             self.opinion_votes.create(user=user, opinion=self, vote_type=True)
