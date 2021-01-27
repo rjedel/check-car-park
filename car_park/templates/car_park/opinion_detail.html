@@ -1,0 +1,39 @@
+{% extends "car_park/base.html" %}
+{% block title %}Szczegóły opinii{% endblock %}
+{% block heading %}
+    <h1>Szczegóły&nbsp;opinii</h1>
+{% endblock heading %}
+{% block content %}
+    <table>
+        <caption>Twoja opinia</caption>
+        <tr>
+            <th>Opinia</th>
+            <th>Ile gwiazdek</th>
+            <th>Czy polecasz</th>
+        </tr>
+        <tr>
+            <td>{{ logged_user_opinion.opinion }}</td>
+            <td>{{ logged_user_opinion.stars }}</td>
+            <td>
+                {% if logged_user_opinion.votes == 1 %}
+                    Tak
+                {% endif %}
+                {% if logged_user_opinion.votes == -1 %}
+                    Nie
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <p>Opinia do parkingu:
+        <a href="{% url 'car_park_detail' logged_user_opinion.car_park.pk %}">
+            {{ logged_user_opinion.car_park.name }}
+        </a>
+    </p>
+    <p>Utworzona: {{ logged_user_opinion.created }}</p>
+    <p>Ostatnio zmodyfikowana: {{ logged_user_opinion.update }}</p>
+    <br>
+    <br>
+    <a href="{% url 'view_profile' %}">
+        <button type="button">Powrót do informacji o profilu</button>
+    </a>
+{% endblock content %}

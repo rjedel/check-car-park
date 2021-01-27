@@ -254,3 +254,10 @@ class UserOpinionsView(LoginRequiredMixin, View):
             user_opinions = Opinion.objects.filter(user=request.user)
         ctx = {'user_opinions': user_opinions}
         return render(request, 'car_park/user_opinion.html', ctx)
+
+
+class OpinionDetailView(LoginRequiredMixin, View):
+    def get(self, request, opinion_pk):
+        logged_user_opinion = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
+        ctx = {'logged_user_opinion': logged_user_opinion}
+        return render(request, 'car_park/opinion_detail.html', ctx)

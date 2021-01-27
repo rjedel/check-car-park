@@ -12,6 +12,7 @@
                 <th>Opinia</th>
                 <th>Ile gwiazdek</th>
                 <th>Czy polecasz</th>
+                <th></th>
             </tr>
             {% for opinion in user_opinions %}
                 <tr>
@@ -26,6 +27,7 @@
                             Nie
                         {% endif %}
                     </td>
+                    <td><a href="{% url 'opinion_detail' opinion.pk %}">więcej</a></td>
                 </tr>
             {% endfor %}
         </table>

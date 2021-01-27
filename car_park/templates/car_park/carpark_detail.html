@@ -69,7 +69,28 @@
     {% endif %}
     <div>
         {% if logged_user_opinion %}
-            {% include "car_park/logged_user_opinion.html" %}
+            <table>
+                <caption>Twoja opinia</caption>
+                <tr>
+                    <th>Opinia</th>
+                    <th>Ile gwiazdek</th>
+                    <th>Czy polecasz</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>{{ logged_user_opinion.opinion }}</td>
+                    <td>{{ logged_user_opinion.stars }}</td>
+                    <td>
+                        {% if logged_user_opinion.votes == 1 %}
+                            Tak
+                        {% endif %}
+                        {% if logged_user_opinion.votes == -1 %}
+                            Nie
+                        {% endif %}
+                    </td>
+                    <td><a href="{% url 'opinion_detail' logged_user_opinion.pk %}">więcej</a></td>
+                </tr>
+            </table>
         {% else %}
             <a href="{% url 'add_opinion' object.pk %}">
                 <button type="button">Dodaj opinię</button>
