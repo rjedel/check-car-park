@@ -1,0 +1,35 @@
+{% extends "car_park/base.html" %}
+{% block title %}Twoje opinie{% endblock %}
+{% block heading %}
+    <h1>Twoje&nbsp;opinie</h1>
+{% endblock heading %}
+{% block content %}
+    {% if user_opinions %}
+        <table>
+            <caption>Twoje Twoje</caption>
+            <tr>
+                <th></th>
+                <th>Opinia</th>
+                <th>Ile gwiazdek</th>
+                <th>Czy polecasz</th>
+            </tr>
+            {% for opinion in user_opinions %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ opinion.opinion }}</td>
+                    <td>{{ opinion.stars }}</td>
+                    <td>
+                        {% if opinion.votes == 1 %}
+                            Tak
+                        {% endif %}
+                        {% if opinion.votes == -1 %}
+                            Nie
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Nie dodałeś jeszcze żadnych opinii.</p>
+    {% endif %}
+{% endblock content %}

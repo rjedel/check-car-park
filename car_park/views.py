@@ -214,7 +214,6 @@ class SearchView(View):
 
 
 class OpinionView(LoginRequiredMixin, View):
-
     def get(self, request, pk):
         return render(request, 'car_park/opinion_form.html', {'form': OpinionForm()})
 
@@ -246,3 +245,12 @@ class OpinionView(LoginRequiredMixin, View):
             else:
                 return redirect(reverse('car_park_detail', args=[car_park.pk]))
         return render(request, 'car_park/opinion_form.html', {'form': form})
+
+
+class UserOpinionsView(LoginRequiredMixin, View):
+    def get(self, request):
+        user_opinions = None
+        if request.user.is_authenticated:
+            user_opinions = Opinion.objects.filter(user=request.user)
+        ctx = {'user_opinions': user_opinions}
+        return render(request, 'car_park/user_opinion.html', ctx)

@@ -18,7 +18,8 @@ from django.urls import path
 
 
 from car_park.views import SignupView, CustomLoginView, CustomLogoutView, AllCarParksListView, CarParkDetailView, \
-    AddCarParkView, AboutView, ContactView, ProfileView, EditProfileView, ChangePasswordView, SearchView, OpinionView
+    AddCarParkView, AboutView, ContactView, ProfileView, EditProfileView, ChangePasswordView, SearchView, OpinionView, \
+    UserOpinionsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('contact/', ContactView.as_view(), name='contact'),
     path('profile/', ProfileView.as_view(), name='view_profile'),
     path('profile/edit/', EditProfileView.as_view(), name='edit_profile'),
-    path('change_password/', ChangePasswordView.as_view(), name='change_password'),
+    path('profile/change_password/', ChangePasswordView.as_view(), name='change_password'),
+    path('profile/user_opinions/', UserOpinionsView.as_view(), name='user_opinions'),
     path('search/', SearchView.as_view(), name='search'),
 ]
