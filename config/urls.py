@@ -35,7 +35,7 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='view_profile'),
     path('profile/edit/', EditProfileView.as_view(), name='edit_profile'),
     path('profile/change_password/', ChangePasswordView.as_view(), name='change_password'),
-    path('profile/user_opinions/', UserOpinionsView.as_view(), name='user_opinions'),
-    path('profile/user_opinions/opinion_detail/<int:opinion_pk>/', OpinionDetailView.as_view(), name='opinion_detail'),
+    path('user_opinions/', UserOpinionsView.as_view(), name='user_opinions'),
+    path('user_opinions/opinion_detail/<int:opinion_pk>/', OpinionDetailView.as_view(), name='opinion_detail'),
     path('search/', SearchView.as_view(), name='search'),
 ]
