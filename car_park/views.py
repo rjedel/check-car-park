@@ -49,9 +49,14 @@ class CarParkDetailView(DetailView):
         sum_votes = car_park_opinions.aggregate(Sum('votes'))['votes__sum']
         up_votes = car_park_opinions.filter(votes=1).count()
         down_votes = car_park_opinions.filter(votes=-1).count()
+        logged_user_opinion = None
+        if self.request.user.is_authenticated \
+                and Opinion.objects.filter(user=self.request.user, car_park=car_park).exists():
+            logged_user_opinion = Opinion.objects.get(user=self.request.user, car_park=car_park)
         context['up_votes'] = up_votes
         context['down_votes'] = down_votes
         context['sum_votes'] = sum_votes
+        context['logged_user_opinion'] = logged_user_opinion
         return context
 
 

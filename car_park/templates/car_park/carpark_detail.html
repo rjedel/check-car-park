@@ -67,10 +67,19 @@
             {% endif %}
         </table>
     {% endif %}
-
+    <div>
+        {% if logged_user_opinion %}
+            {% include "car_park/logged_user_opinion.html" %}
+        {% else %}
+            <a href="{% url 'add_opinion' object.pk %}">
+                <button type="button">Dodaj opinię</button>
+            </a>
+        {% endif %}
+    </div>
     {% if object.car_park_opinions.all %}
         <br>
         <table>
+            <caption>Wszystkie opinie</caption>
             <tr>
                 <th>Opinia</th>
                 <th>Ile gwiazdek</th>
