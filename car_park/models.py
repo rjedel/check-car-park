@@ -40,6 +40,8 @@ class Opinion(models.Model):
     stars = models.PositiveSmallIntegerField(choices=STARS_CHOICES)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_opinions')
     car_park = models.ForeignKey('CarPark', on_delete=models.CASCADE, related_name='car_park_opinions')
+    created = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
     votes = models.IntegerField(default=0)
 
     class Meta:

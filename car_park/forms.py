@@ -118,6 +118,6 @@ class OpinionForm(forms.Form):
         (0, 'Nie'),
         (1, 'Tak'),
     )
-    opinion = forms.CharField(label='Opinia', min_length=2, max_length=100, widget=forms.Textarea)
+    opinion = forms.CharField(label='Opinia', min_length=2, max_length=250, widget=forms.Textarea)
     stars = forms.ChoiceField(label='Ile gwiazdek', choices=Opinion.STARS_CHOICES, widget=forms.RadioSelect)
     recommendation = forms.ChoiceField(label='Czy polecasz', choices=YES_NO_CHOICES, widget=forms.RadioSelect)
