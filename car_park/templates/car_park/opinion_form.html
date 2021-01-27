@@ -19,6 +19,8 @@
     {% if msg %}
         <div>
             {{ msg }}
+            <br>
+            <td><a href="{% url 'opinion_detail' opinion.pk %}">Przejdź do opinii</a></td>
         </div>
     {% endif %}
 {% endblock content %}

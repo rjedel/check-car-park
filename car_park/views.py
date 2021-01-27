@@ -237,9 +237,11 @@ class OpinionView(LoginRequiredMixin, View):
                 if recommendation == '0':
                     opinion_obj.down_vote(user)
             except IntegrityError:
+                opinion = get_object_or_404(Opinion, user=user, car_park=car_park)
                 ctx = {
                     'form': OpinionForm(),
-                    'msg': 'Twoja opinia na temat tego parkingu została już dodana'
+                    'msg': 'Twoja opinia na temat tego parkingu została już dodana.',
+                    'opinion': opinion,
                 }
                 return render(request, 'car_park/opinion_form.html', ctx)
             else:
