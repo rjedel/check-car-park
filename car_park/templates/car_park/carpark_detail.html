@@ -47,7 +47,52 @@
                     <td>{{ object.tariff.additional_fee_description }}</td>
                 </tr>
             {% endif %}
+            {% if up_votes is not None %}
+                <tr>
+                    <td>Głosów polecających</td>
+                    <td>{{ up_votes }}</td>
+                </tr>
+            {% endif %}
+            {% if down_votes is not None %}
+                <tr>
+                    <td>Głosów nie polecających</td>
+                    <td>{{ down_votes }}</td>
+                </tr>
+            {% endif %}
+            {% if sum_votes is not None %}
+                <tr>
+                    <td>Suma głosów</td>
+                    <td>{{ sum_votes }}</td>
+                </tr>
+            {% endif %}
         </table>
+    {% endif %}
+
+    {% if object.car_park_opinions.all %}
+        <br>
+        <table>
+            <tr>
+                <th>Opinia</th>
+                <th>Ile gwiazdek</th>
+                <th>Czy poleca</th>
+            </tr>
+            {% for opinion in object.car_park_opinions.all %}
+                <tr>
+                    <td> {{ opinion.opinion }}</td>
+                    <td>{{ opinion.stars }}</td>
+                    <td>
+                        {% if opinion.votes == 1 %}
+                            Tak
+                        {% endif %}
+                        {% if opinion.votes == -1 %}
+                            Nie
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Brak opinii o tym parkingu</p>
     {% endif %}
 
     <script type="text/javascript">

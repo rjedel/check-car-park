@@ -4,8 +4,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import fromstr
 from django.db import IntegrityError
-from django.db.models import Max, Q
-from django.shortcuts import render, redirect
+from django.db.models import Max, Q, Sum
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, ListView, CreateView
@@ -36,6 +36,23 @@ class AllCarParksListView(ListView):
 
 class CarParkDetailView(DetailView):
     model = CarPark
+
+    def get_car_park(self):
+        car_park_id = self.kwargs['pk']
+        car_park = get_object_or_404(CarPark, pk=car_park_id)
+        return car_park
+
+    def get_context_data(self, **kwargs):
+        context = super(CarParkDetailView, self).get_context_data(**kwargs)
+        car_park = self.get_car_park()
+        car_park_opinions = Opinion.objects.filter(car_park=car_park)
+        sum_votes = car_park_opinions.aggregate(Sum('votes'))['votes__sum']
+        up_votes = car_park_opinions.filter(votes=1).count()
+        down_votes = car_park_opinions.filter(votes=-1).count()
+        context['up_votes'] = up_votes
+        context['down_votes'] = down_votes
+        context['sum_votes'] = sum_votes
+        return context
 
 
 class AddCarParkView(View):
