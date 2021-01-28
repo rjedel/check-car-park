@@ -94,6 +94,9 @@
     {% if request.user.is_authenticated %}
         <a href="{% url 'user_opinions' %}" onclick="closeNav();">Moje&nbsp;opinie</a>
     {% endif %}
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'saved_cp_lst' %}" onclick="closeNav();">Zapisane&nbsp;parkingi</a>
+    {% endif %}
     <a href="{% url 'about' %}" onclick="closeNav();">O&nbsp;stronie</a>
     <a href="{% url 'contact' %}" onclick="closeNav();">Kontakt</a>
 </div>

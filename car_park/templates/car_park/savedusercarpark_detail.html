@@ -1,0 +1,30 @@
+{% extends "car_park/base.html" %}
+{% block title %}Zapisany parking{% endblock %}
+{% block heading %}
+    <h1>Zapisany&nbsp;parking</h1>
+{% endblock heading %}
+{% block content %}
+    <div>
+        <p>Parking:<br>
+            <a href="{% url 'car_park_detail' object.car_park.pk %}">{{ object.car_park.name }}</a></p>
+    </div>
+    {% if object.notes %}
+        <p>Notatka:
+            <br>{{ object.notes }}
+            {% else %}
+        <p>Do tego parkingu nie dodałeś notatki.</p>
+    {% endif %}
+    <br>
+    <br>
+    <a href="{% url 'update_saved_cp' object.pk %}" style="display: inline-block">
+        <button type="button">Dodaj / zmień notatkę</button>
+    </a>
+    <a href="{% url 'delete_saved_cp' object.pk %}">
+        <button type="button">Usuń parking z listy</button>
+    </a>
+    <br>
+    <br>
+    <a href="{% url 'saved_cp_lst' %}">
+        <button type="button">Lista zapisanych parkingów</button>
+    </a>
+{% endblock content %}

@@ -6,13 +6,13 @@ from django.contrib.gis.geos import fromstr
 from django.db import IntegrityError
 from django.db.models import Max, Q, Sum
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import DetailView, ListView, CreateView
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
 from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm, SearchForm, \
-    OpinionForm, OpinionDeleteForm
-from .models import CarPark, Tariff, Opinion
+    OpinionForm, OpinionDeleteForm, SavedUserCarParkForm
+from .models import CarPark, Tariff, Opinion, SavedUserCarPark
 
 
 class SignupView(CreateView):
@@ -53,10 +53,15 @@ class CarParkDetailView(DetailView):
         if self.request.user.is_authenticated \
                 and Opinion.objects.filter(user=self.request.user, car_park=car_park).exists():
             logged_user_opinion = Opinion.objects.get(user=self.request.user, car_park=car_park)
+        car_park_on_list = False
+        if self.request.user.is_authenticated \
+                and SavedUserCarPark.objects.filter(user=self.request.user, car_park=car_park).exists():
+            car_park_on_list = SavedUserCarPark.objects.get(user=self.request.user, car_park=car_park)
         context['up_votes'] = up_votes
         context['down_votes'] = down_votes
         context['sum_votes'] = sum_votes
         context['logged_user_opinion'] = logged_user_opinion
+        context['car_park_on_list'] = car_park_on_list
         return context
 
 
@@ -309,3 +314,67 @@ class OpinionDeleteView(LoginRequiredMixin, View):
             opinion_to_delete = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
             opinion_to_delete.delete()
             return redirect(reverse('user_opinions'))
+
+
+class SavedUserCarParkCreate(LoginRequiredMixin, View):
+    def get(self, request, car_park_pk):
+        form = SavedUserCarParkForm()
+        car_park = get_object_or_404(CarPark, pk=car_park_pk)
+        ctx = {
+            'form': form,
+            'car_park': car_park,
+        }
+        return render(request, 'car_park/savedusercarpark_form.html', ctx)
+
+    def post(self, request, car_park_pk):
+        form = SavedUserCarParkForm(data=request.POST)
+        car_park = get_object_or_404(CarPark, pk=car_park_pk)
+        try:
+            if form.is_valid():
+                notes = form.cleaned_data['notes']
+                user = request.user
+                SavedUserCarPark.objects.create(
+                    notes=notes,
+                    user=user,
+                    car_park=car_park,
+                )
+                return redirect(reverse('saved_cp_lst'))
+        except IntegrityError:
+            ctx = {
+                'form': SavedUserCarParkForm(),
+                'car_park': car_park,
+                'msg': 'Wybrany parking jest już na Twojej liście.',
+            }
+            return render(request, 'car_park/savedusercarpark_form.html', ctx)
+
+
+class AllSavedUserCarParkView(LoginRequiredMixin, ListView):
+    model = SavedUserCarPark
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+
+class SavedUserCarParkDetailView(LoginRequiredMixin, DetailView):
+    model = SavedUserCarPark
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+
+class SavedUserCarParkUpdateView(LoginRequiredMixin, UpdateView):
+    model = SavedUserCarPark
+    template_name_suffix = '_update_form'
+    fields = ('notes',)
+    success_url = reverse_lazy('saved_cp_lst')
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+
+class SavedUserCarParkDeleteView(LoginRequiredMixin, DeleteView):
+    model = SavedUserCarPark
+    success_url = reverse_lazy('saved_cp_lst')
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)

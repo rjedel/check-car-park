@@ -1,0 +1,28 @@
+{% extends "car_park/base.html" %}
+{% block title %}Zapisane parkingi{% endblock %}
+{% block heading %}
+    <h1>Zapisane&nbsp;parkingi</h1>
+{% endblock heading %}
+{% block content %}
+    {% if object_list %}
+        <table>
+            <tr>
+                <th></th>
+                <th>Notatka</th>
+                <th>Parking</th>
+                <th></th>
+                {% for obj in object_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}.</td>
+                        <td>{{ obj.notes }}</td>
+                        <td><a href="{% url 'car_park_detail' obj.car_park.pk %}">{{ obj.car_park.name }}</a></td>
+                        <td><a href="{% url 'detail_saved_cp' obj.pk %}">
+                            <button>edytuj</button>
+                        </a></td>
+                    </tr>
+                {% endfor %}
+        </table>
+    {% else %}
+        <p>Nie zapisałeś jeszcze żadnych parkingów.</p>
+    {% endif %}
+{% endblock content %}

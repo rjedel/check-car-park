@@ -3,7 +3,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from car_park.models import Opinion
+from car_park.models import Opinion, SavedUserCarPark
 
 
 class AddCarParkForm(forms.Form):
@@ -127,3 +127,9 @@ class OpinionDeleteForm(forms.ModelForm):
     class Meta:
         model = Opinion
         fields = []
+
+
+class SavedUserCarParkForm(forms.ModelForm):
+    class Meta:
+        model = SavedUserCarPark
+        fields = ('notes',)

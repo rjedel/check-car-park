@@ -20,6 +20,9 @@ class CarPark(models.Model):
     def latitude_y(self):
         return str(self.location.y).replace(',', '.')
 
+    def __str__(self):
+        return self.name
+
 
 class Tariff(models.Model):
     tariffs_name = models.CharField(max_length=100, blank=True)
@@ -78,6 +81,9 @@ class UserVotes(models.Model):
 
 
 class SavedUserCarPark(models.Model):
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, verbose_name='Notatki')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_saved_car_parks')
     car_park = models.ForeignKey('CarPark', on_delete=models.CASCADE, related_name='car_park_saved_car_parks')
+
+    class Meta:
+        unique_together = ('user_id', 'car_park_id',)

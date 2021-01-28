@@ -19,7 +19,8 @@ from django.urls import path
 
 from car_park.views import SignupView, CustomLoginView, CustomLogoutView, AllCarParksListView, CarParkDetailView, \
     AddCarParkView, AboutView, ContactView, ProfileView, EditProfileView, ChangePasswordView, SearchView, OpinionView, \
-    UserOpinionsView, OpinionDetailView, UpdateOpinionView, OpinionDeleteView
+    UserOpinionsView, OpinionDetailView, UpdateOpinionView, OpinionDeleteView, SavedUserCarParkCreate, \
+    AllSavedUserCarParkView, SavedUserCarParkDetailView, SavedUserCarParkUpdateView, SavedUserCarParkDeleteView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,5 +40,10 @@ urlpatterns = [
     path('user_opinions/opinion_detail/<int:opinion_pk>/', OpinionDetailView.as_view(), name='opinion_detail'),
     path('user_opinions/update_opinion/<int:opinion_pk>/', UpdateOpinionView.as_view(), name='update_opinion'),
     path('user_opinions/delete_opinion/<int:opinion_pk>/', OpinionDeleteView.as_view(), name='delete_opinion'),
+    path('saved_car_parks/', AllSavedUserCarParkView.as_view(), name='saved_cp_lst'),
+    path('saved_car_parks/save_car_park/<int:car_park_pk>/', SavedUserCarParkCreate.as_view(), name='create_saved_cp'),
+    path('saved_car_parks/view_saved_cp/<int:pk>/', SavedUserCarParkDetailView.as_view(), name='detail_saved_cp'),
+    path('saved_car_parks/update_saved_cp/<int:pk>/', SavedUserCarParkUpdateView.as_view(), name='update_saved_cp'),
+    path('saved_car_parks/delete_saved_cp/<int:pk>/', SavedUserCarParkDeleteView.as_view(), name='delete_saved_cp'),
     path('search/', SearchView.as_view(), name='search'),
 ]

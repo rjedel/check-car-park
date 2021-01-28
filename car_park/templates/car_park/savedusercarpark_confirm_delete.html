@@ -1,0 +1,15 @@
+{% extends "car_park/base.html" %}
+{% block title %}Usuń parking z listy{% endblock %}
+{% block heading %}
+    <h1>Usuń&nbsp;parking&nbsp;z&nbsp;listy&nbsp;zapisanych</h1>
+{% endblock heading %}
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <p>Czy na pewno chcesz usunąć parking z listy?</p>
+        <button type="submit">Potwierdź</button>
+        <a href="{% url 'saved_cp_lst' %}">
+            <button type="button">Anuluj</button>
+        </a>
+    </form>
+{% endblock content %}

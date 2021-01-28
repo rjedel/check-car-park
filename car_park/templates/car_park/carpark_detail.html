@@ -68,6 +68,19 @@
         </table>
     {% endif %}
     <div>
+        {% if car_park_on_list %}
+            <p>Parking znajduje się na Twojej liście zapisanych parkingów.
+                <br><a href="{% url 'detail_saved_cp' car_park_on_list.pk %}">
+                    <button>Przejdź</button>
+                </a></p>
+        {% else %}
+            <a href="{% url 'create_saved_cp' object.pk %}">
+                <button type="button">Dodaj do zapisanych</button>
+            </a>
+        {% endif %}
+    </div>
+    <br>
+    <div>
         {% if logged_user_opinion %}
             <table>
                 <caption>Twoja opinia</caption>
