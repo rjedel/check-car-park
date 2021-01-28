@@ -75,3 +75,9 @@ class UserVotes(models.Model):
 
     class Meta:
         unique_together = ('user', 'opinion', 'vote_type',)
+
+
+class SavedUserCarPark(models.Model):
+    notes = models.TextField(blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_saved_car_parks')
+    car_park = models.ForeignKey('CarPark', on_delete=models.CASCADE, related_name='car_park_saved_car_parks')
