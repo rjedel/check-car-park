@@ -31,6 +31,9 @@
     </p>
     <p>Utworzona: {{ logged_user_opinion.created }}</p>
     <p>Ostatnio zmodyfikowana: {{ logged_user_opinion.update }}</p>
+    <a href="{% url 'update_opinion' logged_user_opinion.pk %}">
+        <button type="button">Zmień opinię</button>
+    </a>
     <br>
     <br>
     <a href="{% url 'user_opinions' %}">

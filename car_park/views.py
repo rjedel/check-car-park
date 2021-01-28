@@ -263,3 +263,36 @@ class OpinionDetailView(LoginRequiredMixin, View):
         logged_user_opinion = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
         ctx = {'logged_user_opinion': logged_user_opinion}
         return render(request, 'car_park/opinion_detail.html', ctx)
+
+
+class UpdateOpinionView(LoginRequiredMixin, View):
+    def get(self, request, opinion_pk):
+        opinion = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
+        recommendation = None
+        if opinion.votes == -1:
+            recommendation = 0
+        if opinion.votes == 1:
+            recommendation = 1
+        form = OpinionForm(initial={
+            'opinion': opinion.opinion,
+            'stars': opinion.stars,
+            'recommendation': recommendation,
+        })
+        return render(request, 'car_park/opinion_update_form.html', {'form': form})
+
+    def post(self, request, opinion_pk):
+        form = OpinionForm(data=request.POST)
+        if form.is_valid():
+            new_opinion = form.cleaned_data['opinion']
+            new_stars = form.cleaned_data['stars']
+            new_recommendation = form.cleaned_data['recommendation']
+            user = request.user
+            opinion_obj = get_object_or_404(Opinion, user=user, pk=opinion_pk)
+            opinion_obj.opinion = new_opinion
+            opinion_obj.stars = new_stars
+            if new_recommendation == '1':
+                opinion_obj.votes = 1
+            if new_recommendation == '0':
+                opinion_obj.votes = -1
+            opinion_obj.save()
+            return redirect(reverse('opinion_detail', args=[opinion_obj.pk]))
