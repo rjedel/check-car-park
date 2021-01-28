@@ -76,6 +76,7 @@ class AddCarParkView(View):
             description = form.cleaned_data['description']
             longitude = form.cleaned_data['longitude']
             latitude = form.cleaned_data['latitude']
+            categories = form.cleaned_data['categories']
             free_of_charge = form.cleaned_data['free_of_charge']
 
             tariffs_name = form.cleaned_data['tariffs_name']
@@ -98,6 +99,7 @@ class AddCarParkView(View):
                 free_of_charge=free_of_charge,
                 tariff=tariff,
             )
+            car_park.categories.set(categories)
             return redirect(reverse('car_park_detail', args=[car_park.pk]))
         return render(request, 'car_park/add_car_park.html', {'form': AddCarParkForm(data=request.POST)})
 

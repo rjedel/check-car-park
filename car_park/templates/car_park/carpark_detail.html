@@ -20,6 +20,13 @@
     {% if object.free_of_charge %}
         <p>Parking bezpłatny</p>
     {% endif %}
+    {% if object.categories.all %}
+        <p>Kategorie:
+            {% for category in object.categories.all %}
+                {{ category.name }},
+            {% endfor %}
+        </p>
+    {% endif %}
     {% if object.tariff %}
         <br>
         <table>

@@ -3,7 +3,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from car_park.models import Opinion, SavedUserCarPark
+from car_park.models import Opinion, SavedUserCarPark, Category
 
 
 class AddCarParkForm(forms.Form):
@@ -16,6 +16,10 @@ class AddCarParkForm(forms.Form):
                                   widget=forms.Textarea(attrs={'cols': 21, 'placeholder': 'pole nie jest wymagane'}))
     longitude = forms.CharField(widget=forms.HiddenInput())
     latitude = forms.CharField(widget=forms.HiddenInput())
+    categories = forms.ModelMultipleChoiceField(label='Kategorie',
+                                                queryset=Category.objects.all().order_by('name'),
+                                                required=False,
+                                                widget=forms.CheckboxSelectMultiple)
     free_of_charge = forms.BooleanField(label='Czy parking jest bezpłatny', required=False)
     tariffs_name = forms.CharField(label='Nazwa taryfy', required=False,
                                    widget=forms.TextInput(attrs={'placeholder': 'pole nie jest wymagane'}))

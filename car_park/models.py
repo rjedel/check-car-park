@@ -11,6 +11,7 @@ class CarPark(models.Model):
     update = models.DateTimeField(auto_now=True)
     free_of_charge = models.BooleanField(default=False)
     tariff = models.ForeignKey('Tariff', on_delete=models.CASCADE, null=True)
+    categories = models.ManyToManyField('Category', related_name='car_parks')
 
     @property
     def longitude_x(self):
@@ -87,3 +88,11 @@ class SavedUserCarPark(models.Model):
 
     class Meta:
         unique_together = ('user_id', 'car_park_id',)
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=64)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
