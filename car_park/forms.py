@@ -121,3 +121,9 @@ class OpinionForm(forms.Form):
     opinion = forms.CharField(label='Opinia', min_length=2, max_length=250, widget=forms.Textarea)
     stars = forms.ChoiceField(label='Ile gwiazdek', choices=Opinion.STARS_CHOICES, widget=forms.RadioSelect)
     recommendation = forms.ChoiceField(label='Czy polecasz', choices=YES_NO_CHOICES, widget=forms.RadioSelect)
+
+
+class OpinionDeleteForm(forms.ModelForm):
+    class Meta:
+        model = Opinion
+        fields = []

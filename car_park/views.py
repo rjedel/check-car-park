@@ -11,7 +11,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView, CreateView
 
 from .forms import CustomUserCreationForm, AddCarParkForm, EditProfileForm, CustomPasswordChangeForm, SearchForm, \
-    OpinionForm
+    OpinionForm, OpinionDeleteForm
 from .models import CarPark, Tariff, Opinion
 
 
@@ -296,3 +296,16 @@ class UpdateOpinionView(LoginRequiredMixin, View):
                 opinion_obj.votes = -1
             opinion_obj.save()
             return redirect(reverse('opinion_detail', args=[opinion_obj.pk]))
+
+
+class OpinionDeleteView(LoginRequiredMixin, View):
+    def get(self, request, opinion_pk):
+        get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
+        return render(request, 'car_park/opinion_confirm_delete.html', {'form': OpinionDeleteForm()})
+
+    def post(self, request, opinion_pk):
+        form = OpinionDeleteForm(data=request.POST)
+        if form.is_valid():
+            opinion_to_delete = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
+            opinion_to_delete.delete()
+            return redirect(reverse('user_opinions'))

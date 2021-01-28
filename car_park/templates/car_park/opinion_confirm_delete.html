@@ -1,0 +1,15 @@
+{% extends "car_park/base.html" %}
+{% block title %}Usuń opinię{% endblock %}
+{% block heading %}
+    <h1>Usuń&nbsp;opinię</h1>
+{% endblock heading %}
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <p>Czy na pewno chcesz usunąć opinię?</p>
+        <button type="submit">Potwierdź</button>
+        <a href="{% url 'user_opinions' %}">
+            <button type="button">Anuluj</button>
+        </a>
+    </form>
+{% endblock content %}

@@ -31,8 +31,11 @@
     </p>
     <p>Utworzona: {{ logged_user_opinion.created }}</p>
     <p>Ostatnio zmodyfikowana: {{ logged_user_opinion.update }}</p>
-    <a href="{% url 'update_opinion' logged_user_opinion.pk %}">
+    <a href="{% url 'update_opinion' logged_user_opinion.pk %}" style="display: inline-block">
         <button type="button">Zmień opinię</button>
+    </a>
+    <a href="{% url 'delete_opinion' logged_user_opinion.pk %}">
+        <button type="button">Usuń opinię</button>
     </a>
     <br>
     <br>
