@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 import pytest
+from django.contrib.auth.models import User
 from django.test import Client
 
 from car_park.models import CarPark, Tariff, Category
@@ -45,3 +46,16 @@ def car_park():
     car_park_obj.save()
     car_park_obj.categories.set([category_obj_1, category_obj_2, category_obj_3])
     return car_park_obj, tariff_obj, category_obj_1, category_obj_2, category_obj_3
+
+
+@pytest.fixture
+def test_user():
+    user_data = {
+        'username': 'test_user',
+        'password': 'very?secret',
+        'first_name': 'Alex',
+        'last_name': 'Smith',
+        'email': 'very@email.com',
+    }
+    test_user = User.objects.create_user(**user_data)
+    return test_user

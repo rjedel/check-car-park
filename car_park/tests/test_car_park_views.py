@@ -148,3 +148,27 @@ def test_signup_view_3(client: Client):
     response = client.post(f'/signup/', post_data)
     assert User.objects.count() == 0
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_login_view_1(test_user: User, client: Client):
+    post_data = {
+        'username': 'test_user',
+        'password': 'very?secret',
+    }
+    login_result = client.login(**post_data)
+    assert login_result
+    response = client.post(f'/login/', post_data)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_login_view_2(test_user: User, client: Client):
+    post_data = {
+        'username': 'non-exist',
+        'password': 'any password',
+    }
+    login_result = client.login(**post_data)
+    assert login_result is False
+    response = client.post(f'/login/', post_data)
+    assert response.status_code == 200
