@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
 from django.test import Client
+from django.urls import reverse
 
 from car_park.models import CarPark, Tariff, Category
 
@@ -9,7 +10,7 @@ from car_park.models import CarPark, Tariff, Category
 def test_car_park_detail(client: Client, car_park: CarPark):
     car_park_obj, tariff_obj, category_obj_1, category_obj_2, category_obj_3 = car_park
 
-    response = client.get(f'/car_park_detail/{car_park_obj.id}/')
+    response = client.get(reverse('car_park_detail', args=[car_park_obj.pk]))
 
     assert response.status_code == 200
 
@@ -43,7 +44,7 @@ def test_add_car_park_1(client: Client):  # No categories AND free of charge
         'latitude': '51.2464395',
         'free_of_charge': 'on',
     }
-    response = client.post(f'/add_car_park/', post_data)
+    response = client.post(reverse('add_car_park'), post_data)
     assert CarPark.objects.count() == 1
     assert Tariff.objects.count() == 0
     assert response.status_code == 302
@@ -64,7 +65,7 @@ def test_add_car_park_2(client: Client):  # No categories and NOT free of charge
         'maximum_additional_fee': '567',
         'additional_fee_description': 'No ticket',
     }
-    response = client.post(f'/add_car_park/', post_data)
+    response = client.post(reverse('add_car_park'), post_data)
     assert CarPark.objects.count() == 1
     assert Tariff.objects.count() == 1
     assert response.status_code == 302
@@ -94,7 +95,7 @@ def test_add_car_park_3(client: Client):  # with categories AND NOT free of char
         'additional_fee_description': 'No ticket',
         'categories': [f'{category_obj_1.pk}', f'{category_obj_2.pk}'],
     }
-    response = client.post(f'/add_car_park/', post_data)
+    response = client.post(reverse('add_car_park'), post_data)
     assert CarPark.objects.count() == 1
     assert Tariff.objects.count() == 1
     assert CarPark.objects.first().categories.count() == 2
@@ -112,7 +113,7 @@ def test_signup_view_1(client: Client):
         'last_name': 'Smith',
         'email': 'very@email.com',
     }
-    response = client.post(f'/signup/', post_data)
+    response = client.post(reverse('signup'), post_data)
     assert User.objects.count() == 1
     assert response.url == '/login/'
     assert response.status_code == 302
@@ -129,7 +130,7 @@ def test_signup_view_2(client: Client):
         'last_name': 'Smith',
         'email': 'very@email.com',
     }
-    response = client.post(f'/signup/', post_data)
+    response = client.post(reverse('signup'), post_data)
     assert User.objects.count() == 0
     assert response.status_code == 200
 
@@ -145,7 +146,7 @@ def test_signup_view_3(client: Client):
         'last_name': 'Smith',
         'email': 'very@email.com',
     }
-    response = client.post(f'/signup/', post_data)
+    response = client.post(reverse('signup'), post_data)
     assert User.objects.count() == 0
     assert response.status_code == 200
 
@@ -158,7 +159,7 @@ def test_login_view_1(test_user: User, client: Client):
     }
     login_result = client.login(**post_data)
     assert login_result
-    response = client.post(f'/login/', post_data)
+    response = client.post(reverse('login'), post_data)
     assert response.status_code == 302
 
 
@@ -170,5 +171,5 @@ def test_login_view_2(test_user: User, client: Client):
     }
     login_result = client.login(**post_data)
     assert login_result is False
-    response = client.post(f'/login/', post_data)
+    response = client.post(reverse('login'), post_data)
     assert response.status_code == 200
