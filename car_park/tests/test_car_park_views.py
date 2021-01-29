@@ -1,7 +1,7 @@
 import pytest
 from django.test import Client
 
-from car_park.models import CarPark
+from car_park.models import CarPark, Tariff, Category
 
 
 @pytest.mark.django_db
@@ -29,3 +29,72 @@ def test_car_park_detail(client: Client, car_park: CarPark):
     for category_response, category_fixture in zipped_categories:
         assert category_response.name == category_fixture.name
         assert category_response.description == category_fixture.description
+
+
+@pytest.mark.django_db
+def test_add_car_park_1(client: Client):  # No categories AND free of charge
+    assert len(CarPark.objects.all()) == 0
+    assert len(Tariff.objects.all()) == 0
+    post_data = {
+        'name': 'New Car Park',
+        'description': 'New description',
+        'longitude': '22.5640742804202',
+        'latitude': '51.2464395',
+        'free_of_charge': 'on',
+    }
+    response = client.post(f'/add_car_park/', post_data)
+    assert CarPark.objects.count() == 1
+    assert Tariff.objects.count() == 0
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_add_car_park_2(client: Client):  # No categories and NOT free of charge
+    assert len(CarPark.objects.all()) == 0
+    assert len(Tariff.objects.all()) == 0
+    post_data = {
+        'name': 'New Car Park',
+        'description': 'New description',
+        'longitude': '22.5640742804202',
+        'latitude': '51.2464395',
+        'free_of_charge': '',
+        'tariffs_name': 'New TarRiF',
+        'first_hour_fee': '4',
+        'maximum_additional_fee': '567',
+        'additional_fee_description': 'No ticket',
+    }
+    response = client.post(f'/add_car_park/', post_data)
+    assert CarPark.objects.count() == 1
+    assert Tariff.objects.count() == 1
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_add_car_park_3(client: Client):  # with categories AND NOT free of charge
+    category_obj_1 = Category.objects.create(
+        name='category Name ONE',
+        description='category description ONE',
+    )
+    category_obj_2 = Category.objects.create(
+        name='category Name TWO',
+        description='category description TWO',
+    )
+    assert len(CarPark.objects.all()) == 0
+    assert len(Tariff.objects.all()) == 0
+    post_data = {
+        'name': 'New Car Park',
+        'description': 'New description',
+        'longitude': '22.5640742804202',
+        'latitude': '51.2464395',
+        'free_of_charge': '',
+        'tariffs_name': 'New TarRiF',
+        'first_hour_fee': '4',
+        'maximum_additional_fee': '567',
+        'additional_fee_description': 'No ticket',
+        'categories': [f'{category_obj_1.pk}', f'{category_obj_2.pk}'],
+    }
+    response = client.post(f'/add_car_park/', post_data)
+    assert CarPark.objects.count() == 1
+    assert Tariff.objects.count() == 1
+    assert CarPark.objects.first().categories.count() == 2
+    assert response.status_code == 302
