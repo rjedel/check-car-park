@@ -1,9 +1,10 @@
 import pytest
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.test import Client
 from django.urls import reverse
 
-from car_park.models import CarPark, Tariff, Category
+from car_park.models import CarPark, Tariff, Category, Opinion
 
 
 @pytest.mark.django_db
@@ -173,3 +174,82 @@ def test_login_view_2(test_user: User, client: Client):
     assert login_result is False
     response = client.post(reverse('login'), post_data)
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_add_opinion_not_logged_in(client: Client, car_park: CarPark):
+    assert Opinion.objects.count() == 0
+    car_park_obj, *_ = car_park
+
+    response = client.get(reverse('add_opinion', args=[car_park_obj.pk]))
+    assert response.status_code == 302
+    assert response.url == reverse('login') + '?next=' + reverse('add_opinion', args=[car_park_obj.pk])
+
+    post_data = {
+        'opinion': 'user opinion about the car park',
+        'stars': '5',
+        'recommendation': '1',
+    }
+    response = client.post(reverse('add_opinion', args=[car_park_obj.pk]), post_data)
+    assert response.url == reverse('login') + '?next=' + reverse('add_opinion', args=[car_park_obj.pk])
+    assert response.status_code == 302
+    assert Opinion.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_add_opinion_logged_in_1(test_user: User, client: Client, car_park: CarPark):
+    assert Opinion.objects.count() == 0
+    car_park_obj, *_ = car_park
+
+    client.force_login(test_user)
+    response = client.get(reverse('add_opinion', args=[car_park_obj.pk]))
+    assert response.status_code == 200
+
+    post_data = {
+        'opinion': 'user opinion about the car park',
+        'stars': '5',
+        'recommendation': '1',
+    }
+    response = client.post(reverse('add_opinion', args=[car_park_obj.pk]), post_data)
+    assert response.status_code == 302
+    assert Opinion.objects.count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_add_opinion_logged_in_2(test_user: User, client: Client, car_park: CarPark):
+    assert Opinion.objects.count() == 0
+    car_park_obj, *_ = car_park
+
+    client.force_login(test_user)
+
+    opinion_data = {
+        'opinion': 'first user opinion',
+        'stars': 5,
+        'car_park': car_park_obj,
+        'user': test_user,
+        'votes': 1,
+    }
+    Opinion.objects.create(**opinion_data)
+
+    response = client.get(reverse('add_opinion', args=[car_park_obj.pk]))
+    assert response.status_code == 200
+
+    opinion_data_2 = {
+        'opinion': 'second user opinion',
+        'stars': 5,
+        'car_park': car_park_obj,
+        'user': test_user,
+        'votes': 1,
+    }
+    with pytest.raises(IntegrityError):
+        Opinion.objects.create(**opinion_data_2)
+
+    post_data = {
+        'opinion': 'user opinion about the car park',
+        'stars': '5',
+        'recommendation': '1',
+    }
+    response = client.post(reverse('add_opinion', args=[car_park_obj.pk]), post_data)
+    assert response.context['msg'] == 'Twoja opinia na temat tego parkingu została już dodana.'
+    assert response.status_code == 200
+    assert Opinion.objects.count() == 1
