@@ -7,6 +7,11 @@ from car_park.models import Opinion, SavedUserCarPark, Category
 
 
 class AddCarParkForm(forms.Form):
+    """
+    A form that creates a car park.
+    Checks if car park is free, there is no price data and vice versa.
+    Check whether the car park has a specific location.
+    """
     spot_name = forms.CharField(label='Miejscowość', min_length=2, max_length=100, required=False)
     street = forms.CharField(label='Ulica', min_length=2, max_length=100, required=False)
     street.widget.attrs.update(placeholder='pole nie jest wymagane')
@@ -53,6 +58,10 @@ class AddCarParkForm(forms.Form):
 
 
 class CustomUserCreationForm(UserCreationForm):
+    """
+    A form that creates a user, with no privileges, from the given username,
+    password, first_name, last_name and email.
+    """
     username = forms.CharField(label='Nazwa użytkownika')
     password1 = forms.CharField(label='Hasło', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput)
@@ -63,6 +72,7 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class EditProfileForm(forms.ModelForm):
+    """A form for changing user data."""
     username = forms.CharField(label='Nazwa użytkownika')
 
     class Meta:
@@ -71,6 +81,11 @@ class EditProfileForm(forms.ModelForm):
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
+    """
+    A form that lets a user change their password by entering their old
+    password.
+    Check if the new password is different from the old one.
+    """
     new_password1 = forms.CharField(label='Nowe hasło', widget=forms.PasswordInput)
 
     class Meta:
@@ -88,6 +103,7 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
 
 class SearchForm(forms.Form):
+    """Car park search form."""
     spot_name = forms.CharField(label='Miejscowość', min_length=2, max_length=100, required=False)
     street = forms.CharField(label='Ulica', min_length=2, max_length=100, required=False)
     street_number = forms.IntegerField(label='Numer', widget=forms.TextInput, required=False)
@@ -118,6 +134,7 @@ class SearchForm(forms.Form):
 
 
 class OpinionForm(forms.Form):
+    """A form for adding opinions about the car park."""
     YES_NO_CHOICES = (
         (0, 'Nie'),
         (1, 'Tak'),
@@ -128,12 +145,16 @@ class OpinionForm(forms.Form):
 
 
 class OpinionDeleteForm(forms.ModelForm):
+    """A form to delete an opinion."""
+
     class Meta:
         model = Opinion
         fields = []
 
 
 class SavedUserCarParkForm(forms.ModelForm):
+    """A form that allows user to add a car park to the user's saved car parks."""
+
     class Meta:
         model = SavedUserCarPark
         fields = ('notes',)
