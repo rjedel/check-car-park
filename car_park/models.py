@@ -4,6 +4,11 @@ from django.db import IntegrityError
 
 
 class CarPark(models.Model):
+    """
+    Store information about the car park.
+    Create a relation to tariff.
+    Create relations to categories.
+    """
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     location = models.PointField()
@@ -26,6 +31,7 @@ class CarPark(models.Model):
 
 
 class Tariff(models.Model):
+    """Store information about the car park tariff."""
     tariffs_name = models.CharField(max_length=100, blank=True)
     first_hour_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     maximum_additional_fee = models.DecimalField(max_digits=5, decimal_places=2, null=True)
@@ -33,6 +39,7 @@ class Tariff(models.Model):
 
 
 class Opinion(models.Model):
+    """Store information about the car park opinions."""
     STARS_CHOICES = (
         (1, 1),
         (2, 2),
@@ -73,6 +80,10 @@ class Opinion(models.Model):
 
 
 class UserVotes(models.Model):
+    """
+    Store information about the user's opinions.
+    User can add only one opinion per one car park.
+    """
     user = models.ForeignKey(User, related_name='user_votes', on_delete=models.CASCADE)
     opinion = models.ForeignKey(Opinion, related_name='opinion_votes', on_delete=models.CASCADE)
     vote_type = models.BooleanField()
@@ -82,6 +93,7 @@ class UserVotes(models.Model):
 
 
 class SavedUserCarPark(models.Model):
+    """Store user saved car parks with notes."""
     notes = models.TextField(blank=True, verbose_name='Notatki')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_saved_car_parks')
     car_park = models.ForeignKey('CarPark', on_delete=models.CASCADE, related_name='car_park_saved_car_parks')
@@ -91,6 +103,7 @@ class SavedUserCarPark(models.Model):
 
 
 class Category(models.Model):
+    """Store car park categories."""
     name = models.CharField(max_length=64)
     description = models.TextField(blank=True)
 
