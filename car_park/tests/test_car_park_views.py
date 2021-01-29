@@ -9,6 +9,7 @@ from car_park.models import CarPark, Tariff, Category, Opinion
 
 @pytest.mark.django_db
 def test_car_park_detail(client: Client, car_park: CarPark):
+    """Checks whether detailed data about the car park is displayed."""
     car_park_obj, tariff_obj, category_obj_1, category_obj_2, category_obj_3 = car_park
 
     response = client.get(reverse('car_park_detail', args=[car_park_obj.pk]))
@@ -35,7 +36,11 @@ def test_car_park_detail(client: Client, car_park: CarPark):
 
 
 @pytest.mark.django_db
-def test_add_car_park_1(client: Client):  # No categories AND free of charge
+def test_add_car_park_1(client: Client):
+    """
+    Test add a car park to the database.
+    Car park without categories and free of charge.
+    """
     assert len(CarPark.objects.all()) == 0
     assert len(Tariff.objects.all()) == 0
     post_data = {
@@ -52,7 +57,11 @@ def test_add_car_park_1(client: Client):  # No categories AND free of charge
 
 
 @pytest.mark.django_db
-def test_add_car_park_2(client: Client):  # No categories and NOT free of charge
+def test_add_car_park_2(client: Client):
+    """
+    Test add a car park to the database.
+    Car park without categories, with a car park tariff.
+    """
     assert len(CarPark.objects.all()) == 0
     assert len(Tariff.objects.all()) == 0
     post_data = {
@@ -73,7 +82,11 @@ def test_add_car_park_2(client: Client):  # No categories and NOT free of charge
 
 
 @pytest.mark.django_db
-def test_add_car_park_3(client: Client):  # with categories AND NOT free of charge
+def test_add_car_park_3(client: Client):
+    """
+    Test add a car park to the database.
+    Car park with two categories, with a car park tariff.
+    """
     category_obj_1 = Category.objects.create(
         name='category Name ONE',
         description='category description ONE',
@@ -105,6 +118,7 @@ def test_add_car_park_3(client: Client):  # with categories AND NOT free of char
 
 @pytest.mark.django_db
 def test_signup_view_1(client: Client):
+    """Test user registration on the website."""
     assert len(User.objects.all()) == 0
     post_data = {
         'username': 'test_user',
@@ -122,6 +136,10 @@ def test_signup_view_1(client: Client):
 
 @pytest.mark.django_db
 def test_signup_view_2(client: Client):
+    """
+    Test user registration on the website.
+    User provide passwords that does not match.
+    """
     assert len(User.objects.all()) == 0
     post_data = {
         'username': 'test_user',
@@ -138,6 +156,10 @@ def test_signup_view_2(client: Client):
 
 @pytest.mark.django_db
 def test_signup_view_3(client: Client):
+    """
+    Test user registration on the website.
+    User provide too short passwords.
+    """
     assert len(User.objects.all()) == 0
     post_data = {
         'username': 'test_user',
@@ -154,6 +176,7 @@ def test_signup_view_3(client: Client):
 
 @pytest.mark.django_db
 def test_login_view_1(test_user: User, client: Client):
+    """Test the login of a registered user."""
     post_data = {
         'username': 'test_user',
         'password': 'very?secret',
@@ -166,6 +189,7 @@ def test_login_view_1(test_user: User, client: Client):
 
 @pytest.mark.django_db
 def test_login_view_2(test_user: User, client: Client):
+    """Test the login of an unregistered user."""
     post_data = {
         'username': 'non-exist',
         'password': 'any password',
@@ -178,6 +202,7 @@ def test_login_view_2(test_user: User, client: Client):
 
 @pytest.mark.django_db
 def test_add_opinion_not_logged_in(client: Client, car_park: CarPark):
+    """Test of adding opinion by a not logged in user."""
     assert Opinion.objects.count() == 0
     car_park_obj, *_ = car_park
 
@@ -198,6 +223,7 @@ def test_add_opinion_not_logged_in(client: Client, car_park: CarPark):
 
 @pytest.mark.django_db
 def test_add_opinion_logged_in_1(test_user: User, client: Client, car_park: CarPark):
+    """Test of adding opinion by a logged in user."""
     assert Opinion.objects.count() == 0
     car_park_obj, *_ = car_park
 
@@ -217,6 +243,9 @@ def test_add_opinion_logged_in_1(test_user: User, client: Client, car_park: CarP
 
 @pytest.mark.django_db(transaction=True)
 def test_add_opinion_logged_in_2(test_user: User, client: Client, car_park: CarPark):
+    """
+    Test of adding another opinion to the same car park by a logged in user.
+    """
     assert Opinion.objects.count() == 0
     car_park_obj, *_ = car_park
 

@@ -10,12 +10,14 @@ from car_park.models import CarPark, Tariff, Category
 
 @pytest.fixture
 def client():
+    """Create a dummy web browser."""
     client = Client()
     return client
 
 
 @pytest.fixture
 def car_park():
+    """Create a dummy car park object with tariff and categories."""
     tariff_obj = Tariff.objects.create(
         tariffs_name='TeSt TaRiFfS Name',
         first_hour_fee=Decimal('20.50'),
@@ -50,6 +52,7 @@ def car_park():
 
 @pytest.fixture
 def test_user():
+    """Create a dummy user."""
     user_data = {
         'username': 'test_user',
         'password': 'very?secret',
