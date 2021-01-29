@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth.models import User
 from django.test import Client
 
 from car_park.models import CarPark, Tariff, Category
@@ -98,3 +99,52 @@ def test_add_car_park_3(client: Client):  # with categories AND NOT free of char
     assert Tariff.objects.count() == 1
     assert CarPark.objects.first().categories.count() == 2
     assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_signup_view_1(client: Client):
+    assert len(User.objects.all()) == 0
+    post_data = {
+        'username': 'test_user',
+        'password1': 'very?secret',
+        'password2': 'very?secret',
+        'first_name': 'Alex',
+        'last_name': 'Smith',
+        'email': 'very@email.com',
+    }
+    response = client.post(f'/signup/', post_data)
+    assert User.objects.count() == 1
+    assert response.url == '/login/'
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_signup_view_2(client: Client):
+    assert len(User.objects.all()) == 0
+    post_data = {
+        'username': 'test_user',
+        'password1': 've',
+        'password2': 'not matching',
+        'first_name': 'Alex',
+        'last_name': 'Smith',
+        'email': 'very@email.com',
+    }
+    response = client.post(f'/signup/', post_data)
+    assert User.objects.count() == 0
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_signup_view_3(client: Client):
+    assert len(User.objects.all()) == 0
+    post_data = {
+        'username': 'test_user',
+        'password1': 'short',
+        'password2': 'short',
+        'first_name': 'Alex',
+        'last_name': 'Smith',
+        'email': 'very@email.com',
+    }
+    response = client.post(f'/signup/', post_data)
+    assert User.objects.count() == 0
+    assert response.status_code == 200
