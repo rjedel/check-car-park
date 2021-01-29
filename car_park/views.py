@@ -16,25 +16,41 @@ from .models import CarPark, Tariff, Opinion, SavedUserCarPark
 
 
 class SignupView(CreateView):
+    """
+    Display the sign up form and handle the add user to database.
+    """
     form_class = CustomUserCreationForm
     success_url = '/login/'
     template_name = 'car_park/signup.html'
 
 
 class CustomLoginView(LoginView):
+    """
+    Display the login form and handle the login action.
+    """
     redirect_authenticated_user = True
     template_name = 'car_park/login.html'
 
 
 class CustomLogoutView(LogoutView):
+    """
+    Log out the user and display the 'Zostałeś poprawnie wylogowany.' message.
+    """
     template_name = 'car_park/logged_out.html'
 
 
 class AllCarParksListView(ListView):
+    """
+    Render list of car park objects.
+    Each car park object is placed on the map.
+    """
     model = CarPark
 
 
 class CarParkDetailView(DetailView):
+    """
+    Render a "detail" view of an car park object.
+    """
     model = CarPark
 
     def get_car_park(self):
@@ -43,6 +59,9 @@ class CarParkDetailView(DetailView):
         return car_park
 
     def get_context_data(self, **kwargs):
+        """
+        Add additional information to each car park object.
+        """
         context = super(CarParkDetailView, self).get_context_data(**kwargs)
         car_park = self.get_car_park()
         car_park_opinions = Opinion.objects.filter(car_park=car_park)
@@ -66,6 +85,10 @@ class CarParkDetailView(DetailView):
 
 
 class AddCarParkView(View):
+    """
+    Display the add car park form and handle the process of adding it to database.
+    """
+
     def get(self, request):
         return render(request, 'car_park/add_car_park.html', {'form': AddCarParkForm()})
 
@@ -105,22 +128,36 @@ class AddCarParkView(View):
 
 
 class AboutView(View):
+    """Render information about the page."""
+
     def get(self, request):
         return render(request, 'car_park/about.html')
 
 
 class ContactView(View):
+    """Display contact details."""
+
     def get(self, request):
         return render(request, 'car_park/contact.html')
 
 
 class ProfileView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display information about the user.
+    """
+
     def get(self, request):
         user = request.user
         return render(request, 'car_park/profile.html', {'user': user})
 
 
 class EditProfileView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the edit profile form and handle data change.
+    """
+
     def get(self, request):
         form = EditProfileForm(instance=request.user)
         return render(request, 'car_park/edit_profile.html', {'form': form})
@@ -134,6 +171,11 @@ class EditProfileView(LoginRequiredMixin, View):
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the change password form and handle the change password action.
+    """
+
     def get(self, request):
         form = CustomPasswordChangeForm(user=request.user)
         return render(request, 'car_park/change_password.html', {'form': form})
@@ -148,6 +190,10 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
 
 class SearchView(View):
+    """
+    Display the search form and handle the search action.
+    """
+
     def get(self, request):
         form = SearchForm()
 
@@ -221,6 +267,11 @@ class SearchView(View):
 
 
 class OpinionView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the opinion form and handle add opinion to the car park object.
+    """
+
     def get(self, request, pk):
         return render(request, 'car_park/opinion_form.html', {'form': OpinionForm()})
 
@@ -257,6 +308,11 @@ class OpinionView(LoginRequiredMixin, View):
 
 
 class UserOpinionsView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the opinions added by the logged in user.
+    """
+
     def get(self, request):
         user_opinions = None
         if request.user.is_authenticated:
@@ -266,6 +322,11 @@ class UserOpinionsView(LoginRequiredMixin, View):
 
 
 class OpinionDetailView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the opinion detail.
+    """
+
     def get(self, request, opinion_pk):
         logged_user_opinion = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
         ctx = {'logged_user_opinion': logged_user_opinion}
@@ -273,6 +334,11 @@ class OpinionDetailView(LoginRequiredMixin, View):
 
 
 class UpdateOpinionView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the filled opinion form and handle the change opinion.
+    """
+
     def get(self, request, opinion_pk):
         opinion = get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
         recommendation = None
@@ -306,6 +372,12 @@ class UpdateOpinionView(LoginRequiredMixin, View):
 
 
 class OpinionDeleteView(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    It allows the user to delete the opinion about the car park,
+    issued by the user who added it.
+    """
+
     def get(self, request, opinion_pk):
         get_object_or_404(Opinion, user=request.user, pk=opinion_pk)
         return render(request, 'car_park/opinion_confirm_delete.html', {'form': OpinionDeleteForm()})
@@ -319,6 +391,11 @@ class OpinionDeleteView(LoginRequiredMixin, View):
 
 
 class SavedUserCarParkCreate(LoginRequiredMixin, View):
+    """
+    Verify that the current user is authenticated.
+    Display the add car park to the user's car park list form and handle the add action.
+    """
+
     def get(self, request, car_park_pk):
         form = SavedUserCarParkForm()
         car_park = get_object_or_404(CarPark, pk=car_park_pk)
@@ -351,6 +428,10 @@ class SavedUserCarParkCreate(LoginRequiredMixin, View):
 
 
 class AllSavedUserCarParkView(LoginRequiredMixin, ListView):
+    """
+    Verify that the current user is authenticated.
+    Render table of car park objects, added by the user to its car park list.
+    """
     model = SavedUserCarPark
 
     def get_queryset(self):
@@ -358,6 +439,10 @@ class AllSavedUserCarParkView(LoginRequiredMixin, ListView):
 
 
 class SavedUserCarParkDetailView(LoginRequiredMixin, DetailView):
+    """
+    Verify that the current user is authenticated.
+    Render a "detail" view of an user's saved car park object.
+    """
     model = SavedUserCarPark
 
     def get_queryset(self):
@@ -365,6 +450,10 @@ class SavedUserCarParkDetailView(LoginRequiredMixin, DetailView):
 
 
 class SavedUserCarParkUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    Verify that the current user is authenticated.
+    Display the filled saved car park form and handle the change entry action.
+    """
     model = SavedUserCarPark
     template_name_suffix = '_update_form'
     fields = ('notes',)
@@ -375,6 +464,10 @@ class SavedUserCarParkUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class SavedUserCarParkDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    Verify that the current user is authenticated.
+    It allows the user to delete the entry in user's saved car park.
+    """
     model = SavedUserCarPark
     success_url = reverse_lazy('saved_cp_lst')
 
