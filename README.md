@@ -2,6 +2,12 @@
 
 The main purpose of the application is to warn car park users against excessive additional parking fees.
 
+Landing page                                      |Add car park
+:------------------------------------------------:|:--------------------------------------------------:
+![LandingPage](https://snipboard.io/3YgwWq.jpg)   |  ![AddCarPark](https://snipboard.io/0XBGri.jpg)
+Search for car park                               |Car park details
+![Search](https://snipboard.io/2lWjAB.jpg)        |  ![CarParkDetails](https://snipboard.io/eCLUxr.jpg)
+
 - It is a Django application which uses:
     - PostGIS extension for PostgreSQL database
     - leaflet library
